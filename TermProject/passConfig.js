@@ -9,7 +9,7 @@ function config(app){
     
     userSerialDeserial(app)
 
-    const localLogin = new LocalStrategy(
+    const loginStrategy = new LocalStrategy(
         {usernameField: 'email', passwordField: 'password', passReqToCallback: true},
         (req, email, password, done)=>{
             console.log('password strategy is called')
@@ -36,7 +36,7 @@ function config(app){
         }
     )
 
-    passport.use('localLogin', localLogin)
+    passport.use('loginStrategy', loginStrategy)
 
     const signupStrategy = new LocalStrategy(
         {usernameField: 'email', passwordField: 'password', passReqToCallback: true},
@@ -47,7 +47,7 @@ function config(app){
                         return done(null, false, req.flash('flash_message', 'Email already in use'))
                     } else{
                         const hashedPassword = passwordcrypto.hashPassword(password)
-                        const user = {email, fullname: req.body.fullname, password: hashedPassword}
+                        const user = {email, username: req.body.username, password: hashedPassword}
                         app.locals.customerCollection.insertOne(user)
                             .then(result=>{
                                 return done(null, user,

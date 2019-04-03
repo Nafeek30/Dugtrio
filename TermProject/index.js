@@ -25,7 +25,7 @@ const passConfig = require('./passConfig.js')
 passConfig.config(app)
 
 app.get('/', (req,res)=>{
-    res.render('home')
+    res.render('home',{flash_message: req.flash('flash_message')})
 })
 
 app.get('/welcome', auth, (req, res)=>{
@@ -37,7 +37,7 @@ app.get('/login', (req,res)=>{
 })
 
 app.post('/login', passConfig.passport.authenticate(
-    'localLogin',
+    'loginStrategy',
     {successRedirect: '/welcome', failureRedirect: '/login', failureFlash: true}
 ))
 
@@ -49,8 +49,6 @@ app.post('/signup', passConfig.passport.authenticate(
     'signupStrategy',
     {successRedirect: '/', failureRedirect: '/signup', failureFlash: true}
 ))
-
-
 
 function auth(req, res, next){
     const user = req.user
