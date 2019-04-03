@@ -13,7 +13,7 @@ function config(app){
         {usernameField: 'email', passwordField: 'password', passReqToCallback: true},
         (req, email, password, done)=>{
             console.log('password strategy is called')
-            app.locals.customerCollection.find({email}).toArray()
+            app.locals.usersCollection.find({email}).toArray()
             .then(users=>{
                 if(users.length !=1){
                     console.log('passport invalid email !=1')
@@ -41,14 +41,14 @@ function config(app){
     const signupStrategy = new LocalStrategy(
         {usernameField: 'email', passwordField: 'password', passReqToCallback: true},
         (req, email, password, done)=>{
-            app.locals.customerCollection.find({email}).toArray()
+            app.locals.usersCollection.find({email}).toArray()
                 .then(users=>{
                     if(users.length !=0){
                         return done(null, false, req.flash('flash_message', 'Email already in use'))
                     } else{
                         const hashedPassword = passwordcrypto.hashPassword(password)
                         const user = {email, username: req.body.username, password: hashedPassword}
-                        app.locals.customerCollection.insertOne(user)
+                        app.locals.usersCollection.insertOne(user)
                             .then(result=>{
                                 return done(null, user,
                                     req.flash('flash_message', 'Your account is created'))
@@ -70,7 +70,7 @@ function userSerialDeserial(app){
         done(null, user._id)
     })
     passport.deserializeUser((serial_user, done)=>{
-        app.locals.customerCollection.find({_id: app.locals.ObjectID(serial_user)}).toArray()
+        app.locals.usersCollection.find({_id: app.locals.ObjectID(serial_user)}).toArray()
             .then(users=>{
                 if (users.length != 1){
                     throw `Error found ${users.length} users`

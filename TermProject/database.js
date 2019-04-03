@@ -3,23 +3,23 @@ const MongoClient = mongodb.MongoClient
 const ObjectID= mongodb.ObjectID
 const username = 'user'
 const password = 'password'
-const dbName = 'wsp'
+const dbName = 'for_never_alone'
 const dbHost = 'localhost'
 const dbPort = 27017
-const collectionName = 'customers'
+const collectionName = 'users'
 
 const dbUrl = `mongodb://${username}:${password}@${dbHost}:${dbPort}?authSource=${dbName}`
 
 let dbclient
-let customerCollection
+let usersCollection
 
 function startDBandApp (app, PORT) {
     MongoClient.connect(dbUrl, {poolSize:30, useNewUrlParser: true})
         .then(client=>{
             dbclient = client
-            customerCollection = client.db(dbName).collection(collectionName)
-            app.locals.customerCollection = customerCollection
-            app.locals.imageCollection = client.db(dbName).collection('images')
+            usersCollection = client.db(dbName).collection(collectionName)
+            app.locals.usersCollection = usersCollection
+            app.locals.imagesCollection = client.db(dbName).collection('images')
             app.locals.ObjectID = ObjectID
             app.listen(PORT, ()=>{
                 console.log(`Server is running at port ${PORT}`)
@@ -36,4 +36,4 @@ process.on('SIGINT', ()=>{
     process.exit()
 })
 
-module.exports = {startDBandApp, ObjectID, customerCollection}
+module.exports = {startDBandApp, ObjectID, usersCollection: usersCollection}
