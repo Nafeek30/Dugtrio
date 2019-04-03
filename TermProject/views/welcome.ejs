@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <% include ./partials/header %>
+    <title>Welcome Page!</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Welcome Page</h1>
+            Name: <%= user.fullname %> <br>
+            Email: <%= user.email %> <br>
+            Salt: <%= user.password.salt %> <br>
+            Hashed: <%= user.password.hashed %> <br>
+    </div>
+    <%  include ./partials/scripts %>
+</body>
+
+</html>
