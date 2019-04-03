@@ -36,3 +36,5 @@ class User
         return deserializedUser;
     }
 }
+
+module.exports = User
