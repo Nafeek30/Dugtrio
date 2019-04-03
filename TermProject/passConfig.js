@@ -1,6 +1,5 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
-const User = require('./model/User.js')
 
 const passwordcrypto = require('./passwordcrypto')
 
@@ -48,7 +47,7 @@ function config(app){
                         return done(null, false, req.flash('flash_message', 'Email already in use'))
                     } else{
                         const hashedPassword = passwordcrypto.hashPassword(password)
-                        const user = User.deserializeUser(new User(req.body.username, req.body.email, hashedPassword))
+                        const user = {email, username: req.body.username, password: hashedPassword}
                         app.locals.usersCollection.insertOne(user)
                             .then(result=>{
                                 return done(null, user,

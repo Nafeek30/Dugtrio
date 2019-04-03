@@ -4,7 +4,7 @@ class User
 {
     constructor(username, email, password)
     {
-        this._id = ObjectID("");
+        this._id = "";
         this.username = username;
         this.email = email;
         this.password = password;

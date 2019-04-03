@@ -1,7 +1,7 @@
 const mongodb = require('mongodb')
 const MongoClient = mongodb.MongoClient
 const ObjectID= mongodb.ObjectID
-const username = 'user'
+const username = 'dugtrio'
 const password = 'password'
 const dbName = 'for_never_alone'
 const dbHost = 'localhost'
