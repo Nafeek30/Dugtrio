@@ -32,6 +32,10 @@ app.get('/welcome', auth, (req, res)=>{
     res.render('welcome', {user:req.user})
 })
 
+app.get('/contactus', (req, res)=>{
+    res.render('contactus')
+})
+
 app.get('/login', (req,res)=>{
     res.render('login', {flash_message: req.flash('flash_message')})
 })
