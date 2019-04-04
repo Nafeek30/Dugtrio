@@ -26,11 +26,20 @@ const passConfig = require('./passConfig.js')
 passConfig.config(app)
 
 app.get('/', (req,res)=>{
-    res.render('home',{flash_message: req.flash('flash_message')})
+    res.render('home', {flash_message: req.flash('flash_message')})
+})
+
+app.get('/logout', (req,res)=>{
+    req.logout()
+    res.redirect('/')
 })
 
 app.get('/welcome', auth, (req, res)=>{
     res.render('welcome', {user:req.user})
+})
+
+app.get('/contactus', (req, res)=>{
+    res.render('contactus')
 })
 
 app.get('/login', (req,res)=>{
@@ -59,4 +68,17 @@ function auth(req, res, next){
     else{
         next()
     } 
+}
+
+function authAsAdmin(req, res, next)
+{
+    const user = req.user;
+    if(!user || !user.isAdmin)
+    {
+        res.render('401');
+    }
+    else
+    {
+        next();
+    }
 }
