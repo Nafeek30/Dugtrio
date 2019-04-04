@@ -2,12 +2,13 @@ const ObjectID = require('../database.js').ObjectID;
 
 class Message
 {
-    constructor(chatRoomID, senderID, content)
+    constructor(chatRoomID, userID)
     {
         this._id = ObjectID();
         this.chatRoomID = chatRoomID;
-        this.senderID = senderID;
-        this.content = content;
+        this.userID = userID;
+        this.text = "";
+        this.photoURL = "";
         this.timestamp = Date.now();
     }
 
@@ -16,8 +17,9 @@ class Message
         return {
             _id: this._id,
             chatRoomID: this.chatRoomID,
-            senderID: this.senderID,
-            content: this.content,
+            userID: this.userID,
+            text: this.text,
+            photoURL: this.photoURL,
             timestamp: this.timestamp
         };
     }
@@ -26,11 +28,12 @@ class Message
     {
         const deserializedMessage = new Message(
             message.chatRoomID, 
-            message.senderID, 
-            message.content
+            message.userID
         );
 
         deserializedMessage._id = ObjectID(message._id);
+        deserializedMessage.text = message.text;
+        deserializedMessage.photoURL = photoURL;
         deserializedMessage.timestamp = message.timestamp;
     }
 }
