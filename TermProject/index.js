@@ -41,6 +41,10 @@ app.get('/welcome', auth, (req, res)=>{
     res.render('welcome', {user:req.user})
 })
 
+app.post('/chatRoom', (req, res) => {
+    
+})
+
 app.get('/contactus', (req, res)=>{
     res.render('contactus')
 })
