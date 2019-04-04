@@ -15,12 +15,12 @@ class ChatRoom
     serialize()
     {
         return {
-            _id = this._id,
-            name = this.name,
-            hostID = this.hostID,
-            adminID = this.adminID,
-            userIDs = this.userIDs,
-            photoURL = this.photoURL
+            _id: this._id,
+            name: this.name,
+            hostID: this.hostID,
+            adminID: this.adminID,
+            userIDs: this.userIDs,
+            photoURL: this.photoURL
         };
     }
 

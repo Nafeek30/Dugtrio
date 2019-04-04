@@ -3,6 +3,7 @@ const app = express()
 const database = require('./database.js')
 const flash = require('connect-flash')
 const passConfig = require('./passConfig.js')
+const ChatRoom = require('./model/ChatRoom.js')
 const PORT = process.env.PORT || 3000
 
 const session = require('express-session')
@@ -41,8 +42,30 @@ app.get('/welcome', auth, (req, res)=>{
     res.render('welcome', {user:req.user})
 })
 
+app.get('/chatroom', (req, res) => {
+    res.render('chatroom', {user: req.user})
+})
+
 app.post('/chatRoom', (req, res) => {
-    res.redirect('welcome')
+    const user = User.deserialize(req.user)
+    app.locals.usersCollection.find({isAdmin: true}).toArray()
+        .then(admins => {
+            if(admins.length == 0)
+            {
+                //error, no admins
+            }
+            else
+            {
+                const admin = admins[Math.random() * admins.length]
+                const chatRoom = new ChatRoom(user._id, req.body.roomName)
+                chatRoom.photoURL = req.body.roomImage
+                chatRoom.admin = admin
+                //TODO: insert chatroom into database
+            }
+        })
+        .catch(error => {
+
+        })
 })
 
 app.get('/contactus', (req, res)=>{
