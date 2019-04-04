@@ -11,6 +11,7 @@ app.use(session({
     saveUninitialized: false,
 }))
 
+
 app.set('view engine', 'ejs')
 app.set('views', './views')
 app.use('/public', express.static(__dirname+'/public'))
