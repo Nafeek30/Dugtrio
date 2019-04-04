@@ -25,7 +25,7 @@ const passConfig = require('./passConfig.js')
 passConfig.config(app)
 
 app.get('/', (req,res)=>{
-    res.render('home',{flash_message: req.flash('flash_message')})
+    res.render('home', {flash_message: req.flash('flash_message')})
 })
 
 app.get('/welcome', auth, (req, res)=>{
