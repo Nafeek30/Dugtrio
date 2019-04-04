@@ -63,3 +63,16 @@ function auth(req, res, next){
         next()
     } 
 }
+
+function authAsAdmin(req, res, next)
+{
+    const user = req.user;
+    if(!user || !user.isAdmin)
+    {
+        res.render('401');
+    }
+    else
+    {
+        next();
+    }
+}
