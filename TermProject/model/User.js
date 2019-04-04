@@ -12,6 +12,7 @@ class User
         this.location = "";
         this.bio = "";
         this.isAdmin = false;
+        this.friendIDs = [];
     }
 
     serialize()
@@ -24,7 +25,8 @@ class User
             birthday: this.birthday, 
             location: this.location, 
             bio: this.bio,
-            isAdmin: this.isAdmin
+            isAdmin: this.isAdmin,
+            friendIDs: this.friendIDs
         };
     }
 
@@ -36,6 +38,7 @@ class User
         deserializedUser.location = user.location;
         deserializedUser.bio = user.bio;
         deserializedUser.isAdmin = user.isAdmin;
+        deserializedUser.friendIDs = user.friendIDs;
         
         return deserializedUser;
     }
