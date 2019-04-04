@@ -38,7 +38,24 @@ app.get('/welcome', auth, (req, res)=>{
 })
 
 app.post('/chatRoom', (req, res) => {
-    
+    const user = User.deserialize(req.user)
+    app.locals.usersCollection.find({isAdmin: true}).toArray()
+        .then(admins => {
+            if(admins.length == 0)
+            {
+                //error, no admins
+            }
+            else
+            {
+                const admin = admins[Math.random() * admins.length]
+                const chatRoom = new ChatRoom(user._id, req.body.chatRoomName)
+                chatRoom.admin = admin
+                //TODO: insert chatroom into database
+            }
+        })
+        .catch(error => {
+
+        })
 })
 
 app.get('/contactus', (req, res)=>{
