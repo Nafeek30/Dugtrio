@@ -17,6 +17,7 @@ class User
     serialize()
     {
         return {
+            _id: this._id,
             username: this.username, 
             email: this.email, 
             password: this.password, 

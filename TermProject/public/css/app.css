@@ -1,11 +1,40 @@
+/* Welcome page css styles */
+
+.chatrooms {
+    margin-top: 20px;
+    height: 85vh;
+}
+
+#chatList {
+    position: relative;
+    border: 3px solid skyblue;
+    height: 85vh;
+    column-gap: 20px;
+}
+
+#chatLayout {
+    position: relative;
+    border: 3px solid skyblue;
+    margin-left: 30px;
+}
+
+#addChatroom {
+    position: absolute;
+    bottom: 0;
+    left: 40%;
+}
+
+/*  */
+
+#horizontalAlign {
+    left: 38%;
+}
+
+
 #homeButtons {
     position: absolute;
     padding: 0;
     margin: 0;
     top: 50%;
     left: 45%;
-}
-
-#horizontalalign {
-    left: 38%;
 }

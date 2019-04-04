@@ -1,5 +1,9 @@
 const express = require('express')
 const app = express()
+const database = require('./database.js')
+const flash = require('connect-flash')
+const passConfig = require('./passConfig.js')
+const ChatRoom = require('./model/ChatRoom.js')
 const PORT = process.env.PORT || 3000
 
 const session = require('express-session')
@@ -12,17 +16,18 @@ app.use(session({
     saveUninitialized: false,
 }))
 
+
 app.set('view engine', 'ejs')
 app.set('views', './views')
 app.use('/public', express.static(__dirname+'/public'))
 
-const database = require('./database.js')
+
 database.startDBandApp(app, PORT)
 
-const flash = require('connect-flash')
+
 app.use(flash())
 
-const passConfig = require('./passConfig.js')
+
 passConfig.config(app)
 
 app.get('/', (req,res)=>{
@@ -36,6 +41,32 @@ app.get('/logout', (req,res)=>{
 
 app.get('/welcome', auth, (req, res)=>{
     res.render('welcome', {user:req.user})
+})
+
+app.get('/chatroom', (req, res) => {
+    res.render('chatroom', {user: req.user})
+})
+
+app.post('/chatRoom', (req, res) => {
+    const user = User.deserialize(req.user)
+    app.locals.usersCollection.find({isAdmin: true}).toArray()
+        .then(admins => {
+            if(admins.length == 0)
+            {
+                //error, no admins
+            }
+            else
+            {
+                const admin = admins[Math.random() * admins.length]
+                const chatRoom = new ChatRoom(user._id, req.body.roomName)
+                chatRoom.photoURL = req.body.roomImage
+                chatRoom.admin = admin
+                //TODO: insert chatroom into database
+            }
+        })
+        .catch(error => {
+
+        })
 })
 
 app.get('/contactus', (req, res)=>{
@@ -98,7 +129,7 @@ app.get('/login', (req,res)=>{
 
 app.post('/login', passConfig.passport.authenticate(
     'loginStrategy',
-    {successRedirect: '/welcome', failureRedirect: '/login', failureFlash: true}
+    {successRedirect: '/welcome', failureRedirect: 'back', failureFlash: true}
 ))
 
 app.get('/signup', (req,res)=>{
@@ -107,7 +138,7 @@ app.get('/signup', (req,res)=>{
 
 app.post('/signup', passConfig.passport.authenticate(
     'signupStrategy',
-    {successRedirect: '/', failureRedirect: '/signup', failureFlash: true}
+    {successRedirect: '/', failureRedirect: 'back', failureFlash: true}
 ))
 
 function auth(req, res, next){
