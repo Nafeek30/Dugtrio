@@ -37,6 +37,10 @@ app.get('/welcome', auth, (req, res)=>{
     res.render('welcome', {user:req.user})
 })
 
+app.post('/create-chat-room', (req, res) => {
+    const user = new User
+})
+
 app.get('/contactus', (req, res)=>{
     res.render('contactus')
 })
