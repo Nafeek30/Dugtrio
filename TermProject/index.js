@@ -1,5 +1,8 @@
 const express = require('express')
 const app = express()
+const database = require('./database.js')
+const flash = require('connect-flash')
+const passConfig = require('./passConfig.js')
 const PORT = process.env.PORT || 3000
 
 const session = require('express-session')
@@ -16,13 +19,13 @@ app.set('view engine', 'ejs')
 app.set('views', './views')
 app.use('/public', express.static(__dirname+'/public'))
 
-const database = require('./database.js')
+
 database.startDBandApp(app, PORT)
 
-const flash = require('connect-flash')
+
 app.use(flash())
 
-const passConfig = require('./passConfig.js')
+
 passConfig.config(app)
 
 app.get('/', (req,res)=>{
