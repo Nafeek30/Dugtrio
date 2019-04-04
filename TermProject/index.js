@@ -3,8 +3,9 @@ const app = express()
 const PORT = process.env.PORT || 3000
 
 const session = require('express-session')
+const nodemailer = require('nodemailer')
 
-app.use(express.urlencoded({extended: false}))
+app.use(express.urlencoded({extended: true}))
 app.use(session({
     secret: 'mysecretstring',
     resave: false,
@@ -39,6 +40,56 @@ app.get('/welcome', auth, (req, res)=>{
 
 app.get('/contactus', (req, res)=>{
     res.render('contactus')
+})
+
+app.post('/contactus', (req,res)=>{
+
+    const output = `
+    <html>
+        <p>You have a new message from ${req.body.name} </p>
+        <h1> User information </h1>
+        <ul>
+            <li>Name: ${req.body.name} </li>
+            <li>Email: ${req.body.email} </li>
+            <li>Subject: ${req.body.subject} </li>
+        </ul> <br>
+        <h1> Message To Creator: </h1>
+        <ul>
+            <li>content: ${req.body.description} </li>
+        </ul>
+    `
+    async function main(){
+    let transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+          user: "19webserver@gmail.com",
+          pass: "@password123"
+        },
+        tls:{
+            rejectUnauthorized: false
+        }
+      });
+    
+      // setup email data with unicode symbols
+      let mailOptions = {
+        from: `${req.body.email}`, // sender address
+        to: "dat2pham@gmail.com, canaanm1114@gmail.com, nafeek30@gmail.com", // list of receivers
+        subject: `${req.body.subject}`, // Subject line
+        text: `${req.body.description}`, // plain text body
+        html: output // html body
+      };
+    
+      // send mail with defined transport object
+      let info = await transporter.sendMail(mailOptions)
+    
+      console.log("Message sent: %s", info.messageId);
+      // Preview only available when sending through an Ethereal account
+      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+      res.redirect('/')
+    }
+    main().catch(console.error);
 })
 
 app.get('/login', (req,res)=>{
