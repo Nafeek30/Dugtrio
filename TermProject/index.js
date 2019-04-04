@@ -28,6 +28,11 @@ app.get('/', (req,res)=>{
     res.render('home', {flash_message: req.flash('flash_message')})
 })
 
+app.get('/logout', (req,res)=>{
+    req.logout()
+    res.redirect('/')
+})
+
 app.get('/welcome', auth, (req, res)=>{
     res.render('welcome', {user:req.user})
 })
