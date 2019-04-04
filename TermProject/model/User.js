@@ -11,6 +11,7 @@ class User
         this.birthday = Date.now();
         this.location = "";
         this.bio = "";
+        this.isAdmin = false;
     }
 
     serialize()
@@ -21,7 +22,8 @@ class User
             password: this.password, 
             birthday: this.birthday, 
             location: this.location, 
-            job: this.bio
+            bio: this.bio,
+            isAdmin: this.isAdmin
         };
     }
 
@@ -32,9 +34,10 @@ class User
         deserializedUser.birthday = user.birthday;
         deserializedUser.location = user.location;
         deserializedUser.bio = user.bio;
+        deserializedUser.isAdmin = user.isAdmin;
         
         return deserializedUser;
     }
 }
 
-module.exports = User
+module.exports = User;
