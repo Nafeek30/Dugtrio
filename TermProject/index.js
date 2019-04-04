@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000
 
 const session = require('express-session')
 
-app.use(express.urlencoded({extended: false}))
+app.use(express.urlencoded({extended: true}))
 app.use(session({
     secret: 'mysecretstring',
     resave: false,
@@ -42,7 +42,7 @@ app.get('/welcome', auth, (req, res)=>{
 })
 
 app.post('/chatRoom', (req, res) => {
-    
+    res.redirect('welcome')
 })
 
 app.get('/contactus', (req, res)=>{
@@ -55,7 +55,7 @@ app.get('/login', (req,res)=>{
 
 app.post('/login', passConfig.passport.authenticate(
     'loginStrategy',
-    {successRedirect: '/welcome', failureRedirect: '/login', failureFlash: true}
+    {successRedirect: '/welcome', failureRedirect: 'back', failureFlash: true}
 ))
 
 app.get('/signup', (req,res)=>{
@@ -64,7 +64,7 @@ app.get('/signup', (req,res)=>{
 
 app.post('/signup', passConfig.passport.authenticate(
     'signupStrategy',
-    {successRedirect: '/', failureRedirect: '/signup', failureFlash: true}
+    {successRedirect: '/', failureRedirect: 'back', failureFlash: true}
 ))
 
 function auth(req, res, next){
