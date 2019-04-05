@@ -55,24 +55,25 @@ app.get('/chatroom', (req, res) => {
 
 app.post('/chatroom', auth, (req, res) => {
     const user = User.deserialize(req.user)
-    // app.locals.usersCollection.find({isAdmin: true}).toArray()
-    //     .then(admins => {
-    //         if(admins.length == 0)
-    //         {
-    //             res.send("501 error")
-    //         }
-    //         else
-    //         {
-    //             const admin = admins[Math.random() * admins.length]
-    //             const chatRoom = new ChatRoom(user._id, req.body.roomName)
-    //             chatRoom.photoURL = req.body.roomImage
-    //             chatRoom.admin = admin
-                
-    //         }
-    //     })
-    //     .catch(error => {
+    app.locals.usersCollection.find({isAdmin: true}).toArray()
+        .then(admins => {
+            if(admins.length == 0)
+            {
+                res.send("501 error")
+            }
+            else
+            {
+                const admin = admins[Math.random() * admins.length]
+                const chatRoom = new ChatRoom(user._id, req.body.roomName)
+                chatRoom.photoURL = req.body.roomImage
+                chatRoom.admin = admin
+                console.log(admin)
+                console.log(chatRoom)
+            }
+        })
+        .catch(error => {
 
-    //     })
+        })
 })
 
 app.get('/contactus', (req, res)=>{
@@ -94,6 +95,7 @@ app.post('/contactus', (req,res)=>{
         <ul>
             <li>content: ${req.body.description} </li>
         </ul>
+    </html>
     `
     async function main(){
     let transporter = nodemailer.createTransport({
