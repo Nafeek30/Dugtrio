@@ -42,18 +42,38 @@
     <div class="container chatrooms">
         <div class="row">
           <div class="col-2" id="chatList">
-            <div id="addChatroom">
+            <div>
                 <% if(chatRooms) { %>
-                    <ul>
+                    <ul class="listRooms">
                     <% for(const chatRoom of chatRooms) { %>
-                        <li><%=chatRoom.name%></li>
+                        <li class="roomCol">
+                            <button class="switch">
+                                <img class="img-responsive" src="<%= chatRoom.photoURL %>" alt="room thumbnail" height="50" width="50">
+                            </button>
+                        </li>
                     <% } %>
                     </ul>
                 <% } %>
-                <a href="/chatroom"><i class="fas fa-plus-circle"></i></a>
+                <a id="addChatroom" href="/chatroom"><i class="fas fa-plus-circle"></i></a>
             </div>
         </div>
+        <div class="col-9" id="chatLayout">
+                <div>
+                    <!-- this div will be used to show all message contents -->
+                </div>
+                <div class="chatroomInputs">
+                    <!-- this div will have input fields fixed to the bottom -->
+                    <input name="comment" id="comment" type="text" placeholder="Comment">
+                    <button name="chatOptions" id="chatOptions"><i class="fas fa-plus-circle"></i></button>
+                </div>
+        </div>
     </div>
+
+    <script>
+        $(".switch").on('click', function() {
+            $("#chatLayout").toggle();
+        });
+    </script>
 
     <%  include ./partials/scripts %>
 </body>
