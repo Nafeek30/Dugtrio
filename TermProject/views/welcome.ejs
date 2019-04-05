@@ -43,12 +43,14 @@
         <div class="row">
           <div class="col-2" id="chatList">
             <div id="addChatroom">
-                <% if(chatRoom) { %>
-                    <% for(chatroom in chatRoom) { %>
-                        <li><%=chatroom.name%></li>
+                <% if(chatRooms) { %>
+                    <ul>
+                    <% for(const chatRoom of chatRooms) { %>
+                        <li><%=chatRoom.name%></li>
                     <% } %>
+                    </ul>
                 <% } %>
-                <a href="chatroom"><i class="fas fa-plus-circle"></i></a>
+                <a href="/chatroom"><i class="fas fa-plus-circle"></i></a>
             </div>
           </div>
           <div class="col-9" id="chatLayout">

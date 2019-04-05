@@ -20,6 +20,8 @@ function startDBandApp (app, PORT) {
             usersCollection = client.db(dbName).collection(collectionName)
             app.locals.usersCollection = usersCollection
             app.locals.imagesCollection = client.db(dbName).collection('images')
+            app.locals.chatRoomsCollection = client.db(dbName).collection('chat_rooms')
+            app.locals.messagesCollection = client.db(dbName).collection('messages')
             app.locals.ObjectID = ObjectID
             app.listen(PORT, ()=>{
                 console.log(`Server is running at port ${PORT}`)
