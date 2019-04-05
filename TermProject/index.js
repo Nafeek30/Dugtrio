@@ -49,6 +49,10 @@ app.get('/welcome', auth, (req, res)=>{
     res.render('welcome', {user:req.user, chatRoom: chatRoom})  
 })
 
+app.get('/editprofile', auth, (req, res)=>{
+    res.render('editprofile', {user:req.user})
+})
+
 app.get('/chatroom', (req, res) => {
     res.render('chatroom', {user:req.user})
 })
