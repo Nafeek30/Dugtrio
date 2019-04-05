@@ -46,7 +46,15 @@ app.get('/logout', (req,res)=>{
 })
 
 app.get('/welcome', auth, (req, res)=>{
-    res.render('welcome', {user:req.user, chatRoom: chatRoom})  
+    app.locals.chatRoomsCollection.find({hostID:app.locals.ObjectID(req.user._id)}).toArray()
+        .then(chatRooms => {
+            console.log(chatRooms)
+            res.render('welcome', {user:req.user, chatRooms: chatRooms})  
+        })
+        .catch(error => {
+            res.send(error)
+        })
+
 })
 
 app.get('/editprofile', auth, (req, res)=>{
@@ -63,20 +71,28 @@ app.post('/chatroom', auth, (req, res) => {
         .then(admins => {
             if(admins.length == 0)
             {
-                res.send("501 error")
+                res.send("500 error")
             }
             else
             {
-                const admin = admins[Math.random() * admins.length]
+                console.log('Admins: ', admins)
+                const admin = admins[Math.floor(Math.random() * admins.length)]
                 const chatRoom = new ChatRoom(user._id, req.body.roomName)
                 chatRoom.photoURL = req.body.roomImage
-                chatRoom.admin = admin
-                console.log(admin)
-                console.log(chatRoom)
+                chatRoom.adminID = admin._id
+                // console.log(admin)
+                // console.log(chatRoom)
+                app.locals.chatRoomsCollection.insertOne(chatRoom)
+                .then(result=>{
+                    res.redirect('/welcome')
+                })
+                .catch(error=>{
+                    res.send(error)
+                })
             }
         })
         .catch(error => {
-
+            res.send(error)
         })
 })
 
