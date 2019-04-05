@@ -46,7 +46,7 @@ app.get('/logout', (req,res)=>{
 })
 
 app.get('/welcome', auth, (req, res)=>{
-    res.render('welcome', {user:req.user, chatRoom: chatRoom})  
+    res.render('welcome', {user:req.user, chatRoom: ChatRoom})  
 })
 
 app.get('/chatroom', (req, res) => {
