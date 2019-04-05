@@ -4,9 +4,11 @@ const database = require('./database.js')
 const flash = require('connect-flash')
 const passConfig = require('./passConfig.js')
 const ChatRoom = require('./model/ChatRoom.js')
+const User = require('./model/User.js')
 const PORT = process.env.PORT || 3000
 
 const session = require('express-session')
+const nodemailer = require('nodemailer')
 
 app.use(express.urlencoded({extended: true}))
 app.use(session({
@@ -33,43 +35,98 @@ app.get('/', (req,res)=>{
     res.render('home', {flash_message: req.flash('flash_message')})
 })
 
+app.use(function(req,res,next){
+    res.locals.user = req.user;
+    next();
+})
+
 app.get('/logout', (req,res)=>{
     req.logout()
     res.redirect('/')
 })
 
 app.get('/welcome', auth, (req, res)=>{
-    res.render('welcome', {user:req.user})
+    res.render('welcome', {user:req.user, chatRoom: chatRoom})  
 })
 
 app.get('/chatroom', (req, res) => {
-    res.render('chatroom', {user: req.user})
+    res.render('chatroom', {user:req.user})
 })
 
-app.post('/chatRoom', (req, res) => {
+app.post('/chatroom', auth, (req, res) => {
     const user = User.deserialize(req.user)
-    app.locals.usersCollection.find({isAdmin: true}).toArray()
-        .then(admins => {
-            if(admins.length == 0)
-            {
-                //error, no admins
-            }
-            else
-            {
-                const admin = admins[Math.random() * admins.length]
-                const chatRoom = new ChatRoom(user._id, req.body.roomName)
-                chatRoom.photoURL = req.body.roomImage
-                chatRoom.admin = admin
-                //TODO: insert chatroom into database
-            }
-        })
-        .catch(error => {
+    // app.locals.usersCollection.find({isAdmin: true}).toArray()
+    //     .then(admins => {
+    //         if(admins.length == 0)
+    //         {
+    //             res.send("501 error")
+    //         }
+    //         else
+    //         {
+    //             const admin = admins[Math.random() * admins.length]
+    //             const chatRoom = new ChatRoom(user._id, req.body.roomName)
+    //             chatRoom.photoURL = req.body.roomImage
+    //             chatRoom.admin = admin
+                
+    //         }
+    //     })
+    //     .catch(error => {
 
-        })
+    //     })
 })
 
 app.get('/contactus', (req, res)=>{
     res.render('contactus')
+})
+
+app.post('/contactus', (req,res)=>{
+
+    const output = `
+    <html>
+        <p>You have a new message from ${req.body.name} </p>
+        <h1> User information </h1>
+        <ul>
+            <li>Name: ${req.body.name} </li>
+            <li>Email: ${req.body.email} </li>
+            <li>Subject: ${req.body.subject} </li>
+        </ul> <br>
+        <h1> Message To Creator: </h1>
+        <ul>
+            <li>content: ${req.body.description} </li>
+        </ul>
+    `
+    async function main(){
+    let transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+          user: "19webserver@gmail.com",
+          pass: "@password123"
+        },
+        tls:{
+            rejectUnauthorized: false
+        }
+      });
+    
+      // setup email data with unicode symbols
+      let mailOptions = {
+        from: `${req.body.email}`, // sender address
+        to: "dat2pham@gmail.com, canaanm1114@gmail.com, nafeek30@gmail.com", // list of receivers
+        subject: `${req.body.subject}`, // Subject line
+        text: `${req.body.description}`, // plain text body
+        html: output // html body
+      };
+    
+      // send mail with defined transport object
+      let info = await transporter.sendMail(mailOptions)
+    
+      console.log("Message sent: %s", info.messageId);
+      // Preview only available when sending through an Ethereal account
+      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+      res.redirect('/')
+    }
+    main().catch(console.error);
 })
 
 app.get('/login', (req,res)=>{
