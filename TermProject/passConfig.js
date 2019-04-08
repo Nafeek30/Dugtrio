@@ -62,6 +62,9 @@ function config(app){
         }
     )
     passport.use('signupStrategy', signupStrategy)
+
+    //TODO: Add edit profile strategy
+    //TODO: Add edit password strategy
 }
 
 function userSerialDeserial(app){

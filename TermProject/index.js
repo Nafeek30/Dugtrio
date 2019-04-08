@@ -57,8 +57,12 @@ app.get('/welcome', auth, (req, res)=>{
 
 })
 
-app.get('/editprofile', auth, (req, res)=>{
-    res.render('editprofile', {user:req.user})
+app.get('/profile', auth, (req, res)=>{
+    res.render('profile', {user:req.user})
+})
+
+app.post('/profile', auth, (req, res) => {
+    
 })
 
 app.get('/chatroom', (req, res) => {
