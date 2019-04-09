@@ -8,7 +8,7 @@ class User
         this.username = username;
         this.email = email;
         this.password = password;
-        this.birthday = Date.now();
+        this.birthday = "";
         this.location = "";
         this.bio = "";
         this.isAdmin = false;
