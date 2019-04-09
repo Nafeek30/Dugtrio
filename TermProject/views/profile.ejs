@@ -40,10 +40,10 @@
     </nav>
 
     <div>
-        <form action="/editprofile" method="POST">
+        <form action="/profile" method="POST">
             <div class="text-center">
-                <img src="https://i.kym-cdn.com/photos/images/original/001/015/723/838.jpg" width="200" height="200"
-                    class="img-thumbnail">
+                <a href="/uploadImage"><img src="https://i.kym-cdn.com/photos/images/original/001/015/723/838.jpg" width="200" height="200"
+                    class="img-thumbnail"></a>
             </div>
             <div class="col-sm-3 my-1" id="horizontalAlign">
                 <label for="username">Username</label>
@@ -328,11 +328,11 @@
                 </div>
             </div>
     </div>
-    <div class="col-sm-3 my-1" id="horizontalAlign">
+    <!-- <div class="col-sm-3 my-1" id="horizontalAlign">
         <label for="currentPassword">Current Password</label>
         <input type="password" class="form-control" name="currentPassword" id="currentPassword"
             placeholder="Enter your current password to update your profile." required>
-    </div>
+    </div> -->
     <br>
     <div class="text-center">
         <button type="submit" id="update" name="update" class="btn btn-outline-info">Update Account</button>
