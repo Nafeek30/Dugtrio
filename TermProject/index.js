@@ -5,6 +5,7 @@ const flash = require('connect-flash')
 const passConfig = require('./passConfig.js')
 const ChatRoom = require('./model/ChatRoom.js')
 const User = require('./model/User.js')
+const Message = require('./model/Message.js')
 const PORT = process.env.PORT || 3000
 
 const session = require('express-session')
@@ -45,12 +46,13 @@ app.get('/logout', (req,res)=>{
     res.redirect('/')
 })
 
-app.get('/welcome', auth, (req, res)=>{
+app.get('/welcome', auth, (req, res)=> {
     app.locals.chatRoomsCollection.find({hostID:app.locals.ObjectID(req.user._id)}).toArray()
         .then(chatRooms => {
             console.log(chatRooms)
-            res.render('welcome', {user:req.user, chatRooms: chatRooms})  
-        })
+            
+                res.render('welcome', {user:req.user, chatRooms: chatRooms})  
+            })
         .catch(error => {
             res.send(error)
         })
@@ -66,6 +68,7 @@ app.get('/chatroom', (req, res) => {
 })
 
 app.post('/chatroom', auth, (req, res) => {
+
     const user = User.deserialize(req.user)
     app.locals.usersCollection.find({isAdmin: true}).toArray()
         .then(admins => {

@@ -13,7 +13,14 @@
     padding-top: 20px;
 }
 
+.chatroominputs {
+    padding: 0;
+    margin: 0;
+}
+
 .chatroomInputs {
+    padding: 0;
+    margin: 0;
     position: absolute;
     bottom: 0;
 }
