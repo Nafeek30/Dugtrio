@@ -63,8 +63,29 @@ app.get('/welcome', auth, (req, res) => {
 
 })
 
-app.get('/editprofile', auth, (req, res) => {
-    res.render('editprofile', { user: req.user })
+app.get('/profile', auth, (req, res) => {
+    res.render('profile', { user: req.user, flash_message: req.flash('flash_message') })
+})
+
+app.post('/profile', auth, (req, res) => {
+    const user = req.user;
+    const username = req.body.username;
+    const email = req.body.email;
+    const birthday = req.body.birthday;
+    const location = req.body.location;
+    const bio = req.body.bio;
+
+    const query = {_id: app.locals.ObjectID(user._id)}
+    const newValue = {$set: {username, email, birthday, location, bio}}
+
+    app.locals.usersCollection.updateOne(query, newValue)
+    .then(result => {
+        req.flash('flash_message', 'Profile update successful!')
+        res.redirect('/profile')
+    })
+    .catch(error => {
+        res.send(error)
+    })
 })
 
 app.get('/uploadImage', auth, (req, res) => {

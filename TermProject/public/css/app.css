@@ -5,6 +5,19 @@
     height: 85vh;
 }
 
+.listRooms {
+    list-style: none;
+}
+
+.roomCol {
+    padding-top: 20px;
+}
+
+.chatroomInputs {
+    position: absolute;
+    bottom: 0;
+}
+
 #chatList {
     position: relative;
     border: 3px solid skyblue;
@@ -16,6 +29,7 @@
     position: relative;
     border: 3px solid skyblue;
     margin-left: 30px;
+    display: none;
 }
 
 #addChatroom {
@@ -23,6 +37,15 @@
     bottom: 0;
     left: 40%;
 }
+
+#comment {
+    width: 600px;
+}
+
+#chatOptions {
+    width: 200px;
+}
+
 
 /*  */
 
