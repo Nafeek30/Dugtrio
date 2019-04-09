@@ -10,6 +10,12 @@ const PORT = process.env.PORT || 3000
 const session = require('express-session')
 const nodemailer = require('nodemailer')
 
+const multer = require('multer')
+const path = require('path')
+
+const MAX_FILESIZE = 1020 * 1020 * 1
+const fileType = /jpeg|jpg|png/;
+
 app.use(express.urlencoded({extended: true}))
 app.use(session({
     secret: 'mysecretstring',
@@ -63,6 +69,14 @@ app.get('/profile', auth, (req, res)=>{
 
 app.post('/profile', auth, (req, res) => {
     
+})
+
+app.get('/uploadImage', auth, (req, res)=>{
+    res.render('uploadImage')
+})
+
+app.post('/uploadImage', auth, (req,res)=>{
+
 })
 
 app.get('/chatroom', (req, res) => {
