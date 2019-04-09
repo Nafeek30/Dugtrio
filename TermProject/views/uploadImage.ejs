@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <% include ./partials/header %>
+    <title>Upload Image Page!</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Upload Image Page</h1>
+        <div class="text-center">
+            <form action="/uploadImage" method="POST" enctype="multipart/form-data">
+                <input type="file" name="imageButton"><br>
+                <button type="submit" class="btn btn-outline-info">Upload</button>
+            </form>
+        </div>
+    </div>
+    <%  include ./partials/scripts %>
+</body>
+
+</html>

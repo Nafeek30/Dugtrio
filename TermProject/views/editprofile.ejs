@@ -40,9 +40,12 @@
     </nav>
 
     <div>
-        <form action="/editprofile" method="POST">
+        <form action="/editprofile" method="POST" enctype="multipart/form-data">
             <div class="text-center">
-            <img src="https://i.kym-cdn.com/photos/images/original/001/015/723/838.jpg" width="200" height="200" class="img-thumbnail">
+                <a href="uploadImage">
+                    <img src="https://i.kym-cdn.com/photos/images/original/001/015/723/838.jpg" name="image" id="image"
+                        width="200" height="200" class="img-thumbnail">
+                </a>
             </div>
             <div class="col-sm-3 my-1" id="horizontalAlign">
                 <label for="username">Username</label>
@@ -67,7 +70,7 @@
                 </div>
             </div>
             <div class="text-center">
-                <button type="submit" id="update" name="update" class="btn btn-outline-info">Create Account</button>
+                <button type="submit" id="update" name="update" class="btn btn-outline-info">Update</button>
                 <a href="welcome" class="btn btn-outline-secondary">Cancel</a> <br> <br>
                 <button type="submit" id="delete" name="delete" class="btn btn-danger">Delete Account</button>
             </div>
