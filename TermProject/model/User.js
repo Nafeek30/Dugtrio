@@ -13,7 +13,7 @@ class User
         this.bio = "";
         this.isAdmin = false;
         this.friendIDs = [];
-        this.photoURL = "";
+        this.photoURL = "defaultProfile.png";
     }
 
     serialize()
