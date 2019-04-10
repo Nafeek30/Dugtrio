@@ -64,6 +64,7 @@ app.get('/welcome', auth, (req, res) => {
 })
 
 app.get('/profile', auth, (req, res) => {
+    console.log(req.user)
     res.render('profile', { user: req.user, flash_message: req.flash('flash_message') })
 })
 
@@ -126,28 +127,20 @@ app.post('/uploadImage', auth, (req, res) => {
             return res.write("No file selected")
         }
 
-        //images collection
-        const image = { filename: req.file.filename, owner: req.user.username }
-        app.locals.imagesCollection.insertOne(image)
+        //update user collection
+        const user = req.user
+        const query = { _id: app.locals.ObjectID(user._id) }
+        const photoURL = req.file.filename
+        const newValue = { $set: { photoURL } }
+        app.locals.usersCollection.updateOne(query, newValue)
             .then(result => {
-                //update user collection
-                const user = req.user
-                const query = { _id: app.locals.ObjectID(user._id) }
-                const photoURL = req.file.filename
-                const newValue = { $set: {photoURL} }
-                app.locals.usersCollection.updateOne(query, newValue)
-                    .then(result => {
-                        req.flash('flash_message', 'Profile update successful!')
-                        res.redirect('/profile')
-                    })
-                    .catch(error => {
-                        res.send(error)
-                    })
+                req.flash('flash_message', 'Profile update successful!')
                 res.redirect('/profile')
             })
             .catch(error => {
-                res.write("Cannot upload to DB")
+                res.send(error)
             })
+        res.redirect('/profile')
     })
 })
 
@@ -168,7 +161,7 @@ app.post('/chatroom', auth, (req, res) => {
                 const chatRoom = new ChatRoom(user._id, req.body.roomName)
                 chatRoom.photoURL = req.body.roomImage
                 chatRoom.adminID = admin._id
-                
+
                 app.locals.chatRoomsCollection.insertOne(chatRoom)
                     .then(result => {
                         res.redirect('/welcome')

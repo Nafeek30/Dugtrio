@@ -19,7 +19,7 @@ function startDBandApp (app, PORT) {
             dbclient = client
             usersCollection = client.db(dbName).collection(collectionName)
             app.locals.usersCollection = usersCollection
-            app.locals.imagesCollection = client.db(dbName).collection('images')
+            app.locals.filesCollection = client.db(dbName).collection('files')
             app.locals.chatRoomsCollection = client.db(dbName).collection('chat_rooms')
             app.locals.messagesCollection = client.db(dbName).collection('messages')
             app.locals.ObjectID = ObjectID
