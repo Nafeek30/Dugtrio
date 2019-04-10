@@ -113,8 +113,7 @@ app.post('/chatroom', auth, (req, res) => {
                 const chatRoom = new ChatRoom(user._id, req.body.roomName)
                 chatRoom.photoURL = req.body.roomImage
                 chatRoom.adminID = admin._id
-                // console.log(admin)
-                // console.log(chatRoom)
+                
                 app.locals.chatRoomsCollection.insertOne(chatRoom)
                     .then(result => {
                         res.redirect('/welcome')
