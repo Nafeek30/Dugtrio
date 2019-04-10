@@ -16,7 +16,7 @@ const path = require('path')
 const fs = require('fs')
 
 const MAX_FILESIZE = 1020 * 1020 * 1
-const fileType = /jpeg|jpg|png/;
+const fileTypes = /jpeg|jpg|png/;
 
 app.use(express.urlencoded({ extended: true }))
 app.use(session({
@@ -75,39 +75,80 @@ app.post('/profile', auth, (req, res) => {
     const location = req.body.location;
     const bio = req.body.bio;
 
-    const query = {_id: app.locals.ObjectID(user._id)}
-    const newValue = {$set: {username, email, birthday, location, bio}}
+    const query = { _id: app.locals.ObjectID(user._id) }
+    const newValue = { $set: { username, email, birthday, location, bio } }
 
     app.locals.usersCollection.updateOne(query, newValue)
-    .then(result => {
-        req.flash('flash_message', 'Profile update successful!')
-        res.redirect('/profile')
-    })
-    .catch(error => {
-        res.send(error)
-    })
+        .then(result => {
+            req.flash('flash_message', 'Profile update successful!')
+            res.redirect('/profile')
+        })
+        .catch(error => {
+            res.send(error)
+        })
 })
 
 app.get('/uploadImage', auth, (req, res) => {
     res.render('uploadImage')
 })
 
-// const imageUpload = multer({
-//     storage: StorageOptions,
-//     limits: { fileSize: MAX_FILESIZE },
-//     fileFilter: (req, file, callback) => {
-//         const ext = fileTypes.test(path.extname(file.originalname).toLowerCase())
-//         const mimetype = fileTypes.test(file.mimetype)
-//         if (ext && mimetype) {
-//             return callback(null, true)
-//         } else {
-//             return callback('Error: Images (jpeg, jpg, png) image format only')
-//         }
-//     }
-// }).single('imageButton')
+const StorageOptions = multer.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, './public/images')
+    },
+    filename: (req, file, callback) => {
+        const rand = Math.random().toFixed(4).toString()
+        const originalName = rand + file.originalname.toString()
+        callback(null, originalName)
+    }
+})
+
+const imageUpload = multer({
+    storage: StorageOptions,
+    limits: { fileSize: MAX_FILESIZE },
+    fileFilter: (req, file, callback) => {
+        const ext = fileTypes.test(path.extname(file.originalname).toLowerCase())
+        const mimetype = fileTypes.test(file.mimetype)
+        if (ext && mimetype) {
+            return callback(null, true)
+        } else {
+            return callback('Error: Images (jpeg, jpg, png) image format only')
+        }
+    }
+}).single('imageButton')
 
 app.post('/uploadImage', auth, (req, res) => {
+    imageUpload(req, res, error => {
+        if (error) {
+            return res.write("can't upload because", error)
+        }
+        else if (!req.file) {
+            return res.write("No file selected")
+        }
 
+        //images collection
+        const image = { filename: req.file.filename, owner: req.user.username }
+        app.locals.imagesCollection.insertOne(image)
+            .then(result => {
+                //update user collection
+                const user = req.user
+                const query = { _id: app.locals.ObjectID(user._id) }
+                const photoURL = req.file.filename
+                const newValue = { $set: {photoURL} }
+                app.locals.usersCollection.updateOne(query, newValue)
+                    .then(result => {
+                        req.flash('flash_message', 'Profile update successful!')
+                        res.redirect('/profile')
+                    })
+                    .catch(error => {
+                        res.send(error)
+                    })
+                res.redirect('/profile')
+            })
+            .catch(error => {
+                res.write("Cannot upload to DB")
+            })
+    })
 })
 
 app.get('/chatroom', (req, res) => {
