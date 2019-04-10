@@ -90,7 +90,7 @@ app.post('/profile', auth, (req, res) => {
 })
 
 app.get('/uploadImage', auth, (req, res) => {
-    res.render('uploadImage')
+    res.render('uploadImage', {flash_message: req.flash('flash_message')})
 })
 
 const StorageOptions = multer.diskStorage({
@@ -121,10 +121,12 @@ const imageUpload = multer({
 app.post('/uploadImage', auth, (req, res) => {
     imageUpload(req, res, error => {
         if (error) {
-            return res.write("can't upload because", error)
+            req.flash('flash_message', "Can't upload because: "+ error)
+            return res.redirect('/uploadImage')
         }
         else if (!req.file) {
-            return res.write("No file selected")
+            req.flash('flash_message',"No file selected")
+            return res.redirect('/uploadImage')
         }
 
         //update user collection
