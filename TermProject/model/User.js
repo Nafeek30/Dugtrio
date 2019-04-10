@@ -13,6 +13,7 @@ class User
         this.bio = "";
         this.isAdmin = false;
         this.friendIDs = [];
+        this.photoUrl = "";
     }
 
     serialize()
@@ -26,7 +27,8 @@ class User
             location: this.location, 
             bio: this.bio,
             isAdmin: this.isAdmin,
-            friendIDs: this.friendIDs
+            friendIDs: this.friendIDs,
+            photoUrl: this.photoUrl
         };
     }
 
@@ -39,6 +41,7 @@ class User
         deserializedUser.bio = user.bio;
         deserializedUser.isAdmin = user.isAdmin;
         deserializedUser.friendIDs = user.friendIDs;
+        deserializedUser.photoUrl = user.photoUrl;
         
         return deserializedUser;
     }
