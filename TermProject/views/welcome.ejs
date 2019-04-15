@@ -13,12 +13,11 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="/profile">
-            <img src="../public/images/<%=user.photoURL%>" width="30" height="30"
-                class="d-inline-block align-top" alt="">
+            <img src="../public/images/<%=user.photoURL%>" width="30" height="30" class="d-inline-block align-top" alt="">
             <%= user.username %>
         </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav"
+            aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -67,11 +66,21 @@
                 </div>
                 <div class="chatroomInputs">
                     <!-- this div will have input fields fixed to the bottom -->
-                    <textarea id="message" name="message" rows="2" placeholder="Comment"
-                        onkeypress="return checkKey(event);"></textarea>
+                    <textarea id="message" name="message" rows="2" placeholder="Comment" onkeypress="return checkKey(event);"></textarea>
                     <div id="chatOptionsContainer">
-                        <a href="#" name="chatOptions" id="chatOptions" role="button"><i class="fas fa-plus-circle"></i></a>
+                    <div class="btn-group dropup">
+                        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                        </button>
+                        <div class="dropdown-menu">
+                            <!-- Dropdown menu links -->
+                            <a class="dropdown-item" href="#">Insert Friend</a>
+                            <a class="dropdown-item" >Voice Call</a>
+                            <a class="dropdown-item" onclick="myFunction()">Video Call</a>
+                            <a class="dropdown-item" href="#">File</a>
+                        </div>
                     </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -89,6 +98,10 @@
                     allowNormalKeyFunction = false;
                 }
                 return allowNormalKeyFunction;
+            }
+
+            function myFunction(){
+                var myWindow = window.open("", "", "width=500,height=500");
             }
         </script>
 
