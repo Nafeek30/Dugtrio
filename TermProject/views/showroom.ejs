@@ -39,16 +39,39 @@
         </div>
     </nav>
 
-    <div class="container chatrooms">
-        <div class="row">
-            <div class="col-9" id="chatList">
-                <div>
-                    something
+<div class="container chatrooms">
+    <div class="row">
+            <div class="col-9" id="messageLayout">
+            <div>
+                <!-- this div will be used to show all message contents -->
+            </div>
+            <div class="chatroomInputs">
+                <!-- this div will have input fields fixed to the bottom -->
+                <textarea id="message" name="message" rows="2" placeholder="Comment"
+                    onkeypress="return checkKey(event);"></textarea>
+                <div id="chatOptionsContainer">
+                    <a href="#" name="chatOptions" id="chatOptions" role="button"><i class="fas fa-plus-circle"></i></a>
                 </div>
             </div>
+        </div>
     </div>
 </div>
 
+
+        <script>
+                $(".switch").on('click', function () {
+                    $("#chatLayout").toggle();
+                });
+    
+                function checkKey(event) {
+                    let allowNormalKeyFunction = true;
+                    if (!event.shiftKey && event.code == "Enter") {
+                        //send message here?
+                        allowNormalKeyFunction = false;
+                    }
+                    return allowNormalKeyFunction;
+                }
+            </script>
     <%  include ./partials/scripts %>
 </body>
 
