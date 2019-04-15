@@ -38,25 +38,19 @@ app.use(flash())
 
 passConfig.config(app)
 
-app.get('/', (req, res) => {
-    res.render('home', { flash_message: req.flash('flash_message') })
-})
-
 app.use(function (req, res, next) {
     res.locals.user = req.user;
     next();
 })
 
-app.get('/logout', (req, res) => {
-    req.logout()
-    res.redirect('/')
+app.get('/', (req, res) => {
+    res.render('home', { flash_message: req.flash('flash_message') })
 })
 
 app.get('/welcome', auth, (req, res)=> {
     app.locals.chatRoomsCollection.find({hostID:app.locals.ObjectID(req.user._id)}).toArray()
         .then(chatRooms => {
-            console.log(chatRooms)
-            
+                console.log(chatRooms)
                 res.render('welcome', {user:req.user, chatRooms: chatRooms})  
             })
         .catch(error => {
@@ -132,6 +126,35 @@ app.post('/chatroom', auth, (req, res) => {
         })
 })
 
+app.get('/chatroom/:id', (req, res) => {
+    app.locals.chatRoomsCollection.find({_id:app.locals.ObjectID(req.chatRoom._id)}).toArray()
+        .then(chatRooms => {
+                console.log(chatRooms)
+                res.render('showroom', {user:req.user, chatRooms: chatRooms})  
+            })
+        .catch(error => {
+            res.send(error)
+        })
+})
+
+app.get('/login', (req, res) => {
+    res.render('login', { flash_message: req.flash('flash_message') })
+})
+
+app.post('/login', passConfig.passport.authenticate(
+    'loginStrategy',
+    { successRedirect: '/welcome', failureRedirect: 'back', failureFlash: true }
+))
+
+app.get('/signup', (req, res) => {
+    res.render('signup', { flash_message: req.flash('flash_message') })
+})
+
+app.post('/signup', passConfig.passport.authenticate(
+    'signupStrategy',
+    { successRedirect: '/', failureRedirect: 'back', failureFlash: true }
+))
+
 app.get('/contactus', (req, res) => {
     res.render('contactus')
 })
@@ -187,23 +210,10 @@ app.post('/contactus', (req, res) => {
     main().catch(console.error);
 })
 
-app.get('/login', (req, res) => {
-    res.render('login', { flash_message: req.flash('flash_message') })
+app.get('/logout', (req, res) => {
+    req.logout()
+    res.redirect('/')
 })
-
-app.post('/login', passConfig.passport.authenticate(
-    'loginStrategy',
-    { successRedirect: '/welcome', failureRedirect: 'back', failureFlash: true }
-))
-
-app.get('/signup', (req, res) => {
-    res.render('signup', { flash_message: req.flash('flash_message') })
-})
-
-app.post('/signup', passConfig.passport.authenticate(
-    'signupStrategy',
-    { successRedirect: '/', failureRedirect: 'back', failureFlash: true }
-))
 
 function auth(req, res, next) {
     const user = req.user
