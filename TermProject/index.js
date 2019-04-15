@@ -9,7 +9,6 @@ const PORT = process.env.PORT || 3000
 
 const session = require('express-session')
 const nodemailer = require('nodemailer')
-var Grid = require("gridfs-stream");
 
 const multer = require('multer')
 const path = require('path')
