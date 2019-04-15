@@ -13,12 +13,12 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="/profile">
-            <img src="https://i.kym-cdn.com/photos/images/original/001/015/723/838.jpg" width="30" height="30" class="d-inline-block align-top"
-                alt="">
+            <img src="../public/images/<%=user.photoURL%>" width="30" height="30"
+                class="d-inline-block align-top" alt="">
             <%= user.username %>
         </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav"
-            aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -62,15 +62,23 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        $(".switch").on('click', function() {
-            $("#chatLayout").toggle();
-        });
-    </script>
+        <script>
+            $(".switch").on('click', function () {
+                $("#chatLayout").toggle();
+            });
 
-    <%  include ./partials/scripts %>
+            function checkKey(event) {
+                let allowNormalKeyFunction = true;
+                if (!event.shiftKey && event.code == "Enter") {
+                    //send message here?
+                    allowNormalKeyFunction = false;
+                }
+                return allowNormalKeyFunction;
+            }
+        </script>
+
+        <%  include ./partials/scripts %>
 </body>
 
 </html>

@@ -13,9 +13,10 @@ const nodemailer = require('nodemailer')
 
 const multer = require('multer')
 const path = require('path')
+const fs = require('fs')
 
 const MAX_FILESIZE = 1020 * 1020 * 1
-const fileType = /jpeg|jpg|png/;
+const fileTypes = /jpeg|jpg|png/;
 
 app.use(express.urlencoded({ extended: true }))
 app.use(session({
@@ -32,9 +33,7 @@ app.use('/public', express.static(__dirname + '/public'))
 
 database.startDBandApp(app, PORT)
 
-
 app.use(flash())
-
 
 passConfig.config(app)
 
@@ -47,10 +46,22 @@ app.get('/', (req, res) => {
     res.render('home', { flash_message: req.flash('flash_message') })
 })
 
+app.get('/chatroom/:_id', (req, res) => {
+    app.locals.chatRoomsCollection.findOne({_id:app.locals.ObjectID(req.params._id)}, 
+    function(err, chatRoom) {
+        if(err) {
+            res.send(error)
+        }
+        else {
+            console.log(chatRoom)
+            res.render('showroom', {chatRoom: chatRoom});
+        }
+    })
+})
+
 app.get('/welcome', auth, (req, res)=> {
     app.locals.chatRoomsCollection.find({hostID:app.locals.ObjectID(req.user._id)}).toArray()
         .then(chatRooms => {
-                console.log(chatRooms)
                 res.render('welcome', {user:req.user, chatRooms: chatRooms})  
             })
         .catch(error => {
@@ -60,6 +71,7 @@ app.get('/welcome', auth, (req, res)=> {
 })
 
 app.get('/profile', auth, (req, res) => {
+    console.log(req.user)
     res.render('profile', { user: req.user, flash_message: req.flash('flash_message') })
 })
 
@@ -71,25 +83,74 @@ app.post('/profile', auth, (req, res) => {
     const location = req.body.location;
     const bio = req.body.bio;
 
-    const query = {_id: app.locals.ObjectID(user._id)}
-    const newValue = {$set: {username, email, birthday, location, bio}}
+    const query = { _id: app.locals.ObjectID(user._id) }
+    const newValue = { $set: { username, email, birthday, location, bio } }
 
     app.locals.usersCollection.updateOne(query, newValue)
-    .then(result => {
-        req.flash('flash_message', 'Profile update successful!')
-        res.redirect('/profile')
-    })
-    .catch(error => {
-        res.send(error)
-    })
+        .then(result => {
+            req.flash('flash_message', 'Profile update successful!')
+            res.redirect('/profile')
+        })
+        .catch(error => {
+            res.send(error)
+        })
 })
 
 app.get('/uploadImage', auth, (req, res) => {
-    res.render('uploadImage')
+    res.render('uploadImage', {flash_message: req.flash('flash_message')})
 })
 
-app.post('/uploadImage', auth, (req, res) => {
+const StorageOptions = multer.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, './public/images')
+    },
+    filename: (req, file, callback) => {
+        const rand = Math.random().toFixed(4).toString()
+        const originalName = rand + file.originalname.toString()
+        callback(null, originalName)
+    }
+})
 
+const imageUpload = multer({
+    storage: StorageOptions,
+    limits: { fileSize: MAX_FILESIZE },
+    fileFilter: (req, file, callback) => {
+        const ext = fileTypes.test(path.extname(file.originalname).toLowerCase())
+        const mimetype = fileTypes.test(file.mimetype)
+        if (ext && mimetype) {
+            return callback(null, true)
+        } else {
+            return callback('Error: Images (jpeg, jpg, png) image format only')
+        }
+    }
+}).single('imageButton')
+
+app.post('/uploadImage', auth, (req, res) => {
+    imageUpload(req, res, error => {
+        if (error) {
+            req.flash('flash_message', "Can't upload because: "+ error)
+            return res.redirect('/uploadImage')
+        }
+        else if (!req.file) {
+            req.flash('flash_message',"No file selected")
+            return res.redirect('/uploadImage')
+        }
+
+        //update user collection
+        const user = req.user
+        const query = { _id: app.locals.ObjectID(user._id) }
+        const photoURL = req.file.filename
+        const newValue = { $set: { photoURL } }
+        app.locals.usersCollection.updateOne(query, newValue)
+            .then(result => {
+                req.flash('flash_message', 'Profile update successful!')
+                res.redirect('/profile')
+            })
+            .catch(error => {
+                res.send(error)
+            })
+        res.redirect('/profile')
+    })
 })
 
 app.get('/chatroom', (req, res) => {
@@ -110,8 +171,7 @@ app.post('/chatroom', auth, (req, res) => {
                 const chatRoom = new ChatRoom(user._id, req.body.roomName)
                 chatRoom.photoURL = req.body.roomImage
                 chatRoom.adminID = admin._id
-                // console.log(admin)
-                // console.log(chatRoom)
+
                 app.locals.chatRoomsCollection.insertOne(chatRoom)
                     .then(result => {
                         res.redirect('/welcome')
@@ -125,17 +185,8 @@ app.post('/chatroom', auth, (req, res) => {
             res.send(error)
         })
 })
+//put chatroom id route here
 
-app.get('/chatroom/:id', (req, res) => {
-    app.locals.chatRoomsCollection.find({_id:app.locals.ObjectID(req.chatRoom._id)}).toArray()
-        .then(chatRooms => {
-                console.log(chatRooms)
-                res.render('showroom', {user:req.user, chatRooms: chatRooms})  
-            })
-        .catch(error => {
-            res.send(error)
-        })
-})
 
 app.get('/login', (req, res) => {
     res.render('login', { flash_message: req.flash('flash_message') })
