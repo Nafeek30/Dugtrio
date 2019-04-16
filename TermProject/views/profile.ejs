@@ -11,16 +11,10 @@
 </head>
 
 <body onload="setSelectedLocation('<%= user.location %>')">
-
-    <% if(flash_message.length >0) { %>
-    <div class="alert alert-success" role="alert">
-        <%= flash_message %>
-    </div>
-    <% } %>
-
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="/profile">
-            <img src="../public/images/<%=user.photoURL%>" width="30" height="30" class="circlePhoto d-inline-block align-top" alt="">
+            <img src="../public/images/<%=user.photoURL%>" width="30" height="30" class="circlePhoto d-inline-block align-top"
+                alt="">
             <%= user.username %>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav"
@@ -44,6 +38,12 @@
             </ul>
         </div>
     </nav>
+
+    <% if(flash_message.length >0) { %>
+    <div class="alert alert-success" role="alert">
+        <%= flash_message %>
+    </div>
+    <% } %>
 
     <div>
         <form action="/profile" method="POST">
