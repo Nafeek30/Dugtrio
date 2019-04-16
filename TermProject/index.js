@@ -70,7 +70,9 @@ app.get('/welcome/:_id', auth, (req, res) => {
     }
     else
     {
-        app.locals.messagesCollection.find({ chatRoomID: app.locals.ObjectID(req.params._id) }).toArray()
+        //query messages for this chatroom and sort them in ascending order
+        app.locals.messagesCollection.find({ chatRoomID: app.locals.ObjectID(req.params._id) })
+            .sort({timestamp: 1}).toArray()
             .then(messages => {
                 //console.log(messages)
 
