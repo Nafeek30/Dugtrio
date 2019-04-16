@@ -6,6 +6,7 @@ const passConfig = require('./passConfig.js')
 const ChatRoom = require('./model/ChatRoom.js')
 const User = require('./model/User.js')
 const Message = require('./model/Message.js')
+const utility = require('./utility.js')
 const PORT = process.env.PORT || 3000
 
 const session = require('express-session')
@@ -77,7 +78,8 @@ app.get('/welcome/:_id', auth, (req, res) => {
                     user: req.user, 
                     chatRooms: req.session.chatRooms, 
                     openChatRoom: openChatRoom, 
-                    messages: messages
+                    messages: messages,
+                    utility: utility
                 })
             })
             .catch(error => {
