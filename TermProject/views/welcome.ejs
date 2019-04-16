@@ -39,6 +39,9 @@
         </div>
     </nav>
 
+<!--********************************************************************************************************--> 
+<!--*       List of Chat Rooms                                                                             *-->
+<!--********************************************************************************************************--> 
     <div class="container chatrooms">
         <div class="row">
             <div class="col-2" id="chatList">
@@ -62,6 +65,9 @@
             </div>
             <div class="col-9" id="chatLayout" <%if(typeof(openChatRoom) === 'undefined'){%> hidden <%}%>>
                 <div id="messagesContainer">
+<!--********************************************************************************************************--> 
+<!--*       Message Contents                                                                               *-->
+<!--********************************************************************************************************-->                   
                 <%if(typeof(openChatRoom) !== 'undefined'){%> <%if(typeof(messages) !== 'undefined'){
                     for(const message of messages){%> 
                         <div class="message">
