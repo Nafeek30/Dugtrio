@@ -96,11 +96,11 @@
 }
 
 .messageInfo {
-    position: absolute;
+    position: relative;
     width: 80%;
     right: 3em;
     float: right;
-    clear: both;
+    
 }
 
 .messageInfo p{
