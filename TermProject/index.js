@@ -88,8 +88,13 @@ app.get('/welcome', auth, (req, res)=> {
     else
     {
         console.log('Session Chatrooms: ', JSON.stringify(req.session.chatRooms))
-        res.render('welcom', {user: req.user, chatRooms: req.session.chatRooms})
+        res.render('welcome', {user: req.user, chatRooms: req.session.chatRooms})
     }
+})
+
+//send message
+app.post('/welcome', auth, (req, res) => {
+    res.send(req.body.message + '<br><br>' + JSON.stringify(req.body.openChatRoomID))
 })
 
 app.get('/profile', auth, (req, res) => {

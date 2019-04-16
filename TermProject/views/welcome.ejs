@@ -61,6 +61,7 @@
                 </div>
             </div>
             <div class="col-9" id="chatLayout" <%if(typeof(openChatRoom) === 'undefined'){%> hidden <%}%>>
+                <%if(typeof(openChatRoom) !== 'undefined'){%>
                 <div>
                     <!-- this div will be used to show all message contents -->
                 </div>
@@ -84,7 +85,9 @@
                             </div>
                         </div>
                     </div>
+                    <input type="text" value="<%= openChatRoom._id %>" name="openChatRoomID" hidden>
                 </form>
+                <%}%>
             </div>
         </div>
     </div>
