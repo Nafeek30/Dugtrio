@@ -46,28 +46,50 @@ app.get('/', (req, res) => {
     res.render('home', { flash_message: req.flash('flash_message') })
 })
 
-app.get('/chatroom/:_id', (req, res) => {
-    app.locals.chatRoomsCollection.findOne({_id:app.locals.ObjectID(req.params._id)}, 
-    function(err, chatRoom) {
-        if(err) {
-            res.send(error)
-        }
-        else {
-            console.log(chatRoom)
-            res.render('showroom', {chatRoom: chatRoom});
-        }
-    })
+// app.get('/chatroom/:_id', (req, res) => {
+//     app.locals.chatRoomsCollection.findOne({_id:app.locals.ObjectID(req.params._id)}, 
+//     function(err, chatRoom) {
+//         if(err) {
+//             res.send(error)
+//         }
+//         else {
+//             console.log(chatRoom)
+//             res.render('showroom', {chatRoom: chatRoom});
+//         }
+//     })
+// })
+
+//This opens a chatroom
+app.get('/welcome/:_id', auth, (req, res) => {
+    const openChatRoom = req.session.chatRooms.find(chatRoom => chatRoom._id == req.params._id)
+    console.log(openChatRoom)
+    if(!openChatRoom)
+    {
+        res.render('401')
+    }
+    else
+    {
+        res.render('welcome', {user: req.user, chatRooms: req.session.chatRooms, openChatRoom: openChatRoom})
+    }
 })
 
 app.get('/welcome', auth, (req, res)=> {
+    if(!req.session.chatRooms)
+    {
     app.locals.chatRoomsCollection.find({hostID:app.locals.ObjectID(req.user._id)}).toArray()
         .then(chatRooms => {
+                req.session.chatRooms = chatRooms
                 res.render('welcome', {user:req.user, chatRooms: chatRooms})  
             })
         .catch(error => {
             res.send(error)
         })
-
+    }
+    else
+    {
+        console.log('Session Chatrooms: ', JSON.stringify(req.session.chatRooms))
+        res.render('welcom', {user: req.user, chatRooms: req.session.chatRooms})
+    }
 })
 
 app.get('/profile', auth, (req, res) => {

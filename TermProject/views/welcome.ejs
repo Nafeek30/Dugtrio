@@ -13,17 +13,18 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="/profile">
-            <img src="../public/images/<%=user.photoURL%>" width="30" height="30" class="d-inline-block align-top" alt="">
+            <img src="../public/images/<%=user.photoURL%>" width="30" height="30" class="d-inline-block align-top"
+                alt="">
             <%= user.username %>
         </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav"
-            aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="welcome">Home</a>
+                    <a class="nav-link" href="/welcome">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Request List</a>
@@ -32,7 +33,7 @@
                     <a class="nav-link" href="#">Friends</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="logout">Sign Out</a>
+                    <a class="nav-link" href="/logout">Sign Out</a>
                 </li>
             </ul>
         </div>
@@ -40,72 +41,74 @@
 
     <div class="container chatrooms">
         <div class="row">
-          <div class="col-2" id="chatList">
+            <div class="col-2" id="chatList">
                 <div>
                     <% if(chatRooms) { %>
-                        <ul class="listRooms">
+                    <ul class="listRooms">
                         <% for(const chatRoom of chatRooms) { %>
-                            <li class="roomCol">
-                                <button class="switch">
-                                   <a href="/chatroom/<%=chatRoom._id%>"> 
-                                       <img class="img-responsive" 
-                                       src="<%= chatRoom.photoURL %>" alt="room thumbnail" 
-                                       height="50" width="50">
-                                  </a>
-                                </button>
-                            </li>
+                        <li class="roomCol">
+                            <button class="switch">
+                                <a href="/welcome/<%=chatRoom._id%>">
+                                    <img class="img-responsive" src="<%= chatRoom.photoURL %>" alt="room thumbnail"
+                                        height="50" width="50">
+                                </a>
+                            </button>
+                        </li>
                         <% } %>
-                        </ul>
+                    </ul>
                     <% } %>
                     <a id="addChatroom" href="/chatroom/"><i class="fas fa-plus-circle"></i></a>
                 </div>
             </div>
-            <div class="col-9" id="chatLayout">
+            <div class="col-9" id="chatLayout" <%if(typeof(openChatRoom) === 'undefined'){%> hidden <%}%>>
                 <div>
                     <!-- this div will be used to show all message contents -->
                 </div>
-                <div class="chatroomInputs">
-                    <!-- this div will have input fields fixed to the bottom -->
-                    <textarea id="message" name="message" rows="2" placeholder="Comment" onkeypress="return checkKey(event);"></textarea>
-                    <div id="chatOptionsContainer">
-                    <div class="btn-group dropup">
-                        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-                        </button>
-                        <div class="dropdown-menu">
-                            <!-- Dropdown menu links -->
-                            <a class="dropdown-item" href="#">Insert Friend</a>
-                            <a class="dropdown-item" >Voice Call</a>
-                            <a class="dropdown-item" onclick="myFunction()">Video Call</a>
-                            <a class="dropdown-item" href="#">File</a>
+                <form method="POST" id="messageSender" action='/welcome'>
+                    <div class="chatroomInputs">
+                        <!-- this div will have input fields fixed to the bottom -->
+                        <textarea id="message" name="message" rows="2" placeholder="Comment"
+                            onkeypress="return checkKey(event);"></textarea>
+                        <div id="chatOptionsContainer">
+                            <div class="btn-group dropup">
+                                <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                                </button>
+                                <div class="dropdown-menu">
+                                    <!-- Dropdown menu links -->
+                                    <a class="dropdown-item" href="#">Insert Friend</a>
+                                    <a class="dropdown-item">Voice Call</a>
+                                    <a class="dropdown-item" onclick="myFunction()">Video Call</a>
+                                    <a class="dropdown-item" href="#">File</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
 
-        <script>
-            $(".switch").on('click', function () {
-                $("#chatLayout").toggle();
-            });
+    <script>
+        // $(".switch").on('click', function () {
+        //     $("#chatLayout").toggle();
+        // });
 
-            function checkKey(event) {
-                let allowNormalKeyFunction = true;
-                if (!event.shiftKey && event.code == "Enter") {
-                    //send message here?
-                    allowNormalKeyFunction = false;
-                }
-                return allowNormalKeyFunction;
+        function checkKey(event) {
+            let allowNormalKeyFunction = true;
+            if (!event.shiftKey && event.code == 'Enter') {
+                allowNormalKeyFunction = false;
+                document.getElementById('messageSender').submit();
             }
+            return allowNormalKeyFunction;
+        }
 
-            function myFunction(){
-                var myWindow = window.open("", "", "width=500,height=500");
-            }
-        </script>
+        function myFunction() {
+            var myWindow = window.open("", "", "width=500,height=500");
+        }
+    </script>
 
-        <%  include ./partials/scripts %>
+    <%  include ./partials/scripts %>
 </body>
 
 </html>
