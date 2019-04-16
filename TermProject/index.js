@@ -224,6 +224,8 @@ app.post('/chatroom', auth, (req, res) => {
                 const chatRoom = new ChatRoom(user._id, req.body.roomName)
                 chatRoom.photoURL = req.body.roomImage
                 chatRoom.adminID = admin._id
+                
+                req.session.chatRooms.push(chatRoom)
 
                 app.locals.chatRoomsCollection.insertOne(chatRoom)
                     .then(result => {
