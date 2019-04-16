@@ -10,10 +10,10 @@
     <title>Welcome Page!</title>
 </head>
 
-<body>
+<body onload="setupMessages();">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="/profile">
-            <img src="../public/images/<%=user.photoURL%>" width="30" height="30" class="d-inline-block align-top"
+            <img src="../public/images/<%=user.photoURL%>" width="30" height="30" class="circlePhoto d-inline-block align-top"
                 alt="">
             <%= user.username %>
         </a>
@@ -49,7 +49,7 @@
                         <li class="roomCol">
                             <button class="switch">
                                 <a href="/welcome/<%=chatRoom._id%>">
-                                    <img class="img-responsive" src="<%= chatRoom.photoURL %>" alt="room thumbnail"
+                                    <img class="circlePhoto img-responsive" src="<%= chatRoom.photoURL %>" alt="room thumbnail"
                                         height="50" width="50">
                                 </a>
                             </button>
@@ -61,15 +61,22 @@
                 </div>
             </div>
             <div class="col-9" id="chatLayout" <%if(typeof(openChatRoom) === 'undefined'){%> hidden <%}%>>
+                <div id="messagesContainer">
                 <%if(typeof(openChatRoom) !== 'undefined'){%>
-                <div>
-                    <!-- this div will be used to show all message contents -->
+                    <%if(typeof(messages) !== 'undefined'){
+                        for(const message of messages){%>
+                <div class="message">
+                    <img src="/public/images/<%=user.photoURL%>" width="30" height="30" class="circlePhoto"><div><p><%=message.text%></p></div>
+                    <small><%=message.username%></small>
                 </div>
-                <form method="POST" id="messageSender" action='/welcome'>
+                        <%}
+                    }%>
+                </div>
+                <form method="POST" id="messageSender" action='/welcome/<%=openChatRoom._id%>'>
                     <div class="chatroomInputs">
                         <!-- this div will have input fields fixed to the bottom -->
                         <textarea id="message" name="message" rows="2" placeholder="Comment"
-                            onkeypress="return checkKey(event);"></textarea>
+                            onkeypress="return checkKey(event);" autofocus></textarea>
                         <div id="chatOptionsContainer">
                             <div class="btn-group dropup">
                                 <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"
@@ -85,7 +92,6 @@
                             </div>
                         </div>
                     </div>
-                    <input type="text" value="<%= openChatRoom._id %>" name="openChatRoomID" hidden>
                 </form>
                 <%}%>
             </div>
@@ -93,9 +99,16 @@
     </div>
 
     <script>
-        // $(".switch").on('click', function () {
-        //     $("#chatLayout").toggle();
-        // });
+        function setupMessages()
+        {
+            let messagesContainer = document.getElementById('messagesContainer');
+            if(messagesContainer)
+            {
+                //auto scroll to most recent message
+                //https://www.codeproject.com/Questions/632251/How-to-make-div-scroll-to-bottom-on-load
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
 
         function checkKey(event) {
             let allowNormalKeyFunction = true;

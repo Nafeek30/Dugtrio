@@ -62,14 +62,28 @@ app.get('/', (req, res) => {
 //This opens a chatroom
 app.get('/welcome/:_id', auth, (req, res) => {
     const openChatRoom = req.session.chatRooms.find(chatRoom => chatRoom._id == req.params._id)
-    console.log(openChatRoom)
+    //console.log(openChatRoom)
     if(!openChatRoom)
     {
         res.render('401')
     }
     else
     {
-        res.render('welcome', {user: req.user, chatRooms: req.session.chatRooms, openChatRoom: openChatRoom})
+        app.locals.messagesCollection.find({ chatRoomID: app.locals.ObjectID(req.params._id) }).toArray()
+            .then(messages => {
+                //console.log(messages)
+
+                res.render('welcome', {
+                    user: req.user, 
+                    chatRooms: req.session.chatRooms, 
+                    openChatRoom: openChatRoom, 
+                    messages: messages
+                })
+            })
+            .catch(error => {
+                res.send(error)
+            })
+        
     }
 })
 
@@ -87,14 +101,22 @@ app.get('/welcome', auth, (req, res)=> {
     }
     else
     {
-        console.log('Session Chatrooms: ', JSON.stringify(req.session.chatRooms))
+        //console.log('Session Chatrooms: ', JSON.stringify(req.session.chatRooms))
         res.render('welcome', {user: req.user, chatRooms: req.session.chatRooms})
     }
 })
 
 //send message
-app.post('/welcome', auth, (req, res) => {
-    res.send(req.body.message + '<br><br>' + JSON.stringify(req.body.openChatRoomID))
+app.post('/welcome/:_id', auth, (req, res) => {
+    const message = new Message(req.params._id, req.user._id, req.user.username)
+    message.text = req.body.message
+    app.locals.messagesCollection.insertOne(message)
+        .then(result => {
+            res.redirect(`/welcome/${req.params._id}`)
+        })
+        .catch(error => {
+            res.send(error)
+        })
 })
 
 app.get('/profile', auth, (req, res) => {
