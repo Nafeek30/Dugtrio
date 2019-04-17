@@ -1,4 +1,6 @@
-/* Welcome page css styles */
+/* 
+    Welcome page css styles 
+*/
 
 .chatrooms {
     margin-top: 20px;
@@ -145,4 +147,13 @@
     margin: 0;
     top: 50%;
     left: 45%;
+}
+
+
+/* 
+    Friend page css 
+*/
+
+#friendSearch {
+    padding-top: 20px;
 }
