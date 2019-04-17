@@ -80,7 +80,7 @@
                                 <small><%=utility.getDateTime(message.timestamp)%></small>
                                 <p><%=message.text%></p>
                             </div>
-                        </div><br>
+                        </div>
                     <%}
                 }%>
         </div>
@@ -124,7 +124,10 @@
             let allowNormalKeyFunction = true;
             if (!event.shiftKey && event.code == 'Enter') {
                 allowNormalKeyFunction = false;
-                document.getElementById('messageSender').submit();
+                let messageBox = document.getElementById('messageBox');
+                messageBox.value = messageBox.value.trim()
+                if(messageBox.value.length > 0)
+                    document.getElementById('messageSender').submit();
             }
             return allowNormalKeyFunction;
         }
