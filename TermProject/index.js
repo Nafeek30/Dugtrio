@@ -143,15 +143,15 @@ app.post('/friends', (req, res) => {
 })
 
 app.get('/request', (req, res) => {
-    console.log(req.user._id)
-    app.locals.requestsCollection.find({receiver:app.locals.ObjectID(req.user._id)}).toArray()
+    app.locals.requestsCollection.find({}).toArray()
         .then(sender => {
             sender.forEach(e => {
-                console.log(e.sender)
+                if(e.receiver == req.user.username) {
+                    console.log(e.sender)
+                } 
             });
             res.render('request', {sender:sender})
         })
-    res.render('request')
 })
 
 app.get('/profile', auth, (req, res) => {
