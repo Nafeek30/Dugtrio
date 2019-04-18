@@ -16,6 +16,9 @@ const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
 
+const Peer = require("simple-peer")
+const wrtc = require('wrtc')
+
 const MAX_FILESIZE = 1020 * 1020 * 1
 const fileTypes = /jpeg|jpg|png/;
 
@@ -30,7 +33,6 @@ app.use(session({
 app.set('view engine', 'ejs')
 app.set('views', './views')
 app.use('/public', express.static(__dirname + '/public'))
-
 
 database.startDBandApp(app, PORT)
 
@@ -121,6 +123,11 @@ app.post('/welcome/:_id', auth, (req, res) => {
         .catch(error => {
             res.send(error)
         })
+})
+
+//webcam
+app.get("/1", (req,res)=>{
+    res.render('webcam')
 })
 
 app.get('/profile', auth, (req, res) => {
