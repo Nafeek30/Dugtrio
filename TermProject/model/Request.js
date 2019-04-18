@@ -25,7 +25,7 @@ class Request
             request.receiver
         );
 
-        deserializedRequest._id = ObjectID(message._id);
+        deserializedRequest._id = ObjectID(request._id);
     }
 }
 
