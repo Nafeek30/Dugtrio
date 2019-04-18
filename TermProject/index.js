@@ -6,6 +6,7 @@ const passConfig = require('./passConfig.js')
 const ChatRoom = require('./model/ChatRoom.js')
 const User = require('./model/User.js')
 const Message = require('./model/Message.js')
+const Request = require('./model/Request.js')
 const utility = require('./utility.js')
 const PORT = process.env.PORT || 3000
 
@@ -49,20 +50,6 @@ app.get('/', (req, res) => {
     res.render('home', { flash_message: req.flash('flash_message') })
 })
 
-// app.get('/chatroom/:_id', (req, res) => {
-//     app.locals.chatRoomsCollection.findOne({_id:app.locals.ObjectID(req.params._id)}, 
-//     function(err, chatRoom) {
-//         if(err) {
-//             res.send(error)
-//         }
-//         else {
-//             console.log(chatRoom)
-//             res.render('showroom', {chatRoom: chatRoom});
-//         }
-//     })
-// })
-
-//This opens a chatroom
 app.get('/welcome/:_id', auth, (req, res) => {
     const openChatRoom = req.session.chatRooms.find(chatRoom => chatRoom._id == req.params._id)
     //console.log(openChatRoom)
@@ -130,6 +117,50 @@ app.get("/1", (req,res)=>{
     res.render('webcam')
 })
 
+app.get('/friends', (req, res) => {
+    res.render('friends', {user: req.user, flash_message: req.flash('flash_message')})
+})
+
+app.post('/friends', (req, res) => {
+    const request = new Request(req.user.username, req.body.friendName[0])
+    var friendName = req.body.friendName[0]
+    //how to list all objects from a db and compare one attribute from each of them with something from ejs field 
+    app.locals.usersCollection.find({}).toArray()
+        .then(friend => {
+            //we get all user objects in friends; now compare each of them to see if we find a match
+            friend.forEach(e => {
+                if(friendName == e.username) {
+                    //if match is found then insert the name in request db collection
+                    app.locals.requestsCollection.insertOne(request)
+                        .then(result => {
+                            req.flash('flash_message', "Friend added successfully")
+                            return res.redirect('/friends')
+                        })
+                        .catch(error => {
+                            console.log(error)
+                        })
+                }   else {
+                    res.redirect('/friends')
+                }
+            });
+        })
+        .catch(error => {
+            res.send(error)
+        })
+})
+
+app.get('/request', (req, res) => {
+    app.locals.requestsCollection.find({}).toArray()
+        .then(sender => {
+            sender.forEach(e => {
+                if(e.receiver == req.user.username) {
+                    console.log(e.sender)
+                } 
+            });
+            res.render('request', {sender:sender})
+        })
+})
+
 app.get('/profile', auth, (req, res) => {
     console.log(req.user)
     res.render('profile', { user: req.user, flash_message: req.flash('flash_message') })
@@ -159,6 +190,7 @@ app.post('/profile', auth, (req, res) => {
 app.get('/uploadImage', auth, (req, res) => {
     res.render('uploadImage', {flash_message: req.flash('flash_message')})
 })
+
 
 const StorageOptions = multer.diskStorage({
     destination: (req, file, callback) => {

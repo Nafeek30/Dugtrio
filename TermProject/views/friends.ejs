@@ -37,21 +37,23 @@
             </ul>
         </div>
     </nav>
-    <form action="/chatroom" method="POST">
-        <div class="col-sm-3 my-1" id="horizontalAlign">
-            <label for="roomName"></label>
-            <input type="text" class="form-control" name="roomName" id="roomName" placeholder="Enter Room Name"
-                required>
+
+    <% if(flash_message.length >0) { %>
+        <div class="alert alert-success" role="alert">
+            <%= flash_message %>
         </div>
-        <div class="col-sm-3 my-1" id="horizontalAlign">
-            <label for="roomImage"></label>
-            <input type="text" class="form-control" name="roomImage" id="roomImage" placeholder="Enter image URL">
+        <% } %> 
+   <div class="container" id="friendSearch">
+    <form action="/friends" method="POST">
+        <div class="form-row">
+        <div class="col">
+            <input id="friendName" name="friendName" type="text" class="form-control" placeholder="Add friend by name">
         </div>
-        <div class="text-center" id="horizontalAlign">
-            <button type="submit" class="btn btn-outline-info">Submit</button>
+        <button id="sendRequest" name="friendName" type="submit" class="btn btn-primary">Submit</button>
         </div>
-    </form>
-    
+      </form>
+    </div> 
+
     <%  include ./partials/scripts %>
 </body>
 
