@@ -53,22 +53,20 @@ app.get('/', (req, res) => {
 app.get('/welcome/:_id', auth, (req, res) => {
     const openChatRoom = req.session.chatRooms.find(chatRoom => chatRoom._id == req.params._id)
     //console.log(openChatRoom)
-    if(!openChatRoom)
-    {
+    if (!openChatRoom) {
         res.render('401')
     }
-    else
-    {
+    else {
         //query messages for this chatroom and sort them in ascending order
         app.locals.messagesCollection.find({ chatRoomID: app.locals.ObjectID(req.params._id) })
-            .sort({timestamp: 1}).toArray()
+            .sort({ timestamp: 1 }).toArray()
             .then(messages => {
                 //console.log(messages)
 
                 res.render('welcome', {
-                    user: req.user, 
-                    chatRooms: req.session.chatRooms, 
-                    openChatRoom: openChatRoom, 
+                    user: req.user,
+                    chatRooms: req.session.chatRooms,
+                    openChatRoom: openChatRoom,
                     messages: messages,
                     utility: utility
                 })
@@ -76,26 +74,24 @@ app.get('/welcome/:_id', auth, (req, res) => {
             .catch(error => {
                 res.send(error)
             })
-        
+
     }
 })
 
-app.get('/welcome', auth, (req, res)=> {
-    if(!req.session.chatRooms)
-    {
-    app.locals.chatRoomsCollection.find({hostID:app.locals.ObjectID(req.user._id)}).toArray()
-        .then(chatRooms => {
+app.get('/welcome', auth, (req, res) => {
+    if (!req.session.chatRooms) {
+        app.locals.chatRoomsCollection.find({ hostID: app.locals.ObjectID(req.user._id) }).toArray()
+            .then(chatRooms => {
                 req.session.chatRooms = chatRooms
-                res.render('welcome', {user:req.user, chatRooms: chatRooms})  
+                res.render('welcome', { user: req.user, chatRooms: chatRooms })
             })
-        .catch(error => {
-            res.send(error)
-        })
+            .catch(error => {
+                res.send(error)
+            })
     }
-    else
-    {
+    else {
         //console.log('Session Chatrooms: ', JSON.stringify(req.session.chatRooms))
-        res.render('welcome', {user: req.user, chatRooms: req.session.chatRooms})
+        res.render('welcome', { user: req.user, chatRooms: req.session.chatRooms })
     }
 })
 
@@ -113,51 +109,57 @@ app.post('/welcome/:_id', auth, (req, res) => {
 })
 
 //webcam
-app.get("/1", (req,res)=>{
+app.get("/1", (req, res) => {
     res.render('webcam')
 })
 
 app.get('/friends', (req, res) => {
-    res.render('friends', {user: req.user, flash_message: req.flash('flash_message')})
+    res.render('friends', { user: req.user, flash_message: req.flash('flash_message') })
 })
 
 app.post('/friends', (req, res) => {
     const request = new Request(req.user.username, req.body.friendName[0])
     var friendName = req.body.friendName[0]
     //how to list all objects from a db and compare one attribute from each of them with something from ejs field 
-    app.locals.usersCollection.find({}).toArray()
+    app.locals.usersCollection.findOne({ username: friendName })
         .then(friend => {
             //we get all user objects in friends; now compare each of them to see if we find a match
-            friend.forEach(e => {
-                if(friendName == e.username) {
-                    //if match is found then insert the name in request db collection
-                    app.locals.requestsCollection.insertOne(request)
-                        .then(result => {
-                            req.flash('flash_message', "Friend added successfully")
-                            return res.redirect('/friends')
-                        })
-                        .catch(error => {
-                            console.log(error)
-                        })
-                }   else {
-                    res.redirect('/friends')
-                }
-            });
+            if (friend) {
+                //if match is found then insert the name in request db collection
+                app.locals.requestsCollection.insertOne(request)
+                    .then(result => {
+                        req.flash('flash_message', "Friend added successfully")
+                        return res.redirect('/friends')
+                    })
+                    .catch(error => {
+                        console.log(error)
+                        res.send(error)
+                    })
+            } 
+            else {
+                res.redirect('/friends')
+            }
         })
         .catch(error => {
             res.send(error)
         })
 })
 
-app.get('/request', (req, res) => {
+app.get('/requests', (req, res) => {
     app.locals.requestsCollection.find({}).toArray()
-        .then(sender => {
-            sender.forEach(e => {
-                if(e.receiver == req.user.username) {
-                    console.log(e.sender)
-                } 
-            });
-            res.render('request', {sender:sender})
+        .then(senders => {
+            if(senders.length > 0)
+            {
+                console.log(sender)
+                res.render('requests', { senders: senders })
+            }
+            else
+            {
+                res.render('requests')
+            }
+        })
+        .catch(error => {
+            res.send(error)
         })
 })
 
@@ -188,7 +190,7 @@ app.post('/profile', auth, (req, res) => {
 })
 
 app.get('/uploadImage', auth, (req, res) => {
-    res.render('uploadImage', {flash_message: req.flash('flash_message')})
+    res.render('uploadImage', { flash_message: req.flash('flash_message') })
 })
 
 
@@ -220,11 +222,11 @@ const imageUpload = multer({
 app.post('/uploadImage', auth, (req, res) => {
     imageUpload(req, res, error => {
         if (error) {
-            req.flash('flash_message', "Can't upload because: "+ error)
+            req.flash('flash_message', "Can't upload because: " + error)
             return res.redirect('/uploadImage')
         }
         else if (!req.file) {
-            req.flash('flash_message',"No file selected")
+            req.flash('flash_message', "No file selected")
             return res.redirect('/uploadImage')
         }
 
@@ -263,7 +265,7 @@ app.post('/chatroom', auth, (req, res) => {
                 const chatRoom = new ChatRoom(user._id, req.body.roomName)
                 chatRoom.photoURL = req.body.roomImage
                 chatRoom.adminID = admin._id
-                
+
                 req.session.chatRooms.push(chatRoom)
 
                 app.locals.chatRoomsCollection.insertOne(chatRoom)

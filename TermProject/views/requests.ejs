@@ -16,9 +16,10 @@
     
         <div class="container">
           <ul class="list-group">
-                <%for(const send of sender) { %>
-                <li class="list-group-item"><%= send.sender %></li>
-                <% } %>
+                <%if(typeof(senders) !== 'undefined'){%>
+                <%for(const sender of senders) { %>
+                <li class="list-group-item"><%= sender.sender %></li>
+                <% } }%>
               </ul>
         </div>
 
