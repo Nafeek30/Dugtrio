@@ -108,6 +108,11 @@ app.post('/welcome/:_id', auth, (req, res) => {
         })
 })
 
+//init webcam
+app.get("/initWebcam", auth, (req,res)=>{
+    res.render('initWebcam', {user: req.user})
+})
+
 //webcam
 app.get("/1", (req, res) => {
     res.render('webcam')
