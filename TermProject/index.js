@@ -46,10 +46,69 @@ app.use(function (req, res, next) {
     next();
 })
 
+
+// ----------------------------------------------------------------------------
+// Login route
+// --------------------------------------------------------------------------
+app.get('/login', (req, res) => {
+    res.render('login', { flash_message: req.flash('flash_message') })
+})
+
+// ----------------------------------------------------------------------------
+// Login post route
+// --------------------------------------------------------------------------
+app.post('/login', passConfig.passport.authenticate(
+    'loginStrategy',
+    { successRedirect: '/welcome', failureRedirect: 'back', failureFlash: true }
+))
+
+// ----------------------------------------------------------------------------
+// Signup route
+// --------------------------------------------------------------------------
+app.get('/signup', (req, res) => {
+    res.render('signup', { flash_message: req.flash('flash_message') })
+})
+
+// ----------------------------------------------------------------------------
+// Signup post route
+// --------------------------------------------------------------------------
+app.post('/signup', passConfig.passport.authenticate(
+    'signupStrategy',
+    { successRedirect: '/', failureRedirect: 'back', failureFlash: true }
+))
+
+// ----------------------------------------------------------------------------
+// Index route
+// --------------------------------------------------------------------------
 app.get('/', (req, res) => {
     res.render('home', { flash_message: req.flash('flash_message') })
 })
 
+
+// ----------------------------------------------------------------------------
+// Welcome/home page route
+// --------------------------------------------------------------------------
+app.get('/welcome', auth, (req, res) => {
+    if (!req.session.chatRooms) {
+        app.locals.chatRoomsCollection.find({ hostID: app.locals.ObjectID(req.user._id) }).toArray()
+            .then(chatRooms => {
+                req.session.chatRooms = chatRooms
+                res.render('welcome', { user: req.user, chatRooms: chatRooms })
+            })
+            .catch(error => {
+                res.send(error)
+            })
+    }
+    else {
+        //console.log('Session Chatrooms: ', JSON.stringify(req.session.chatRooms))
+        res.render('welcome', { user: req.user, chatRooms: req.session.chatRooms })
+    }
+})
+
+
+// ----------------------------------------------------------------------------
+// Chatroom ID get route
+// --------------------------------------------------------------------------
 app.get('/welcome/:_id', auth, (req, res) => {
     const openChatRoom = req.session.chatRooms.find(chatRoom => chatRoom._id == req.params._id)
     //console.log(openChatRoom)
@@ -78,24 +137,11 @@ app.get('/welcome/:_id', auth, (req, res) => {
     }
 })
 
-app.get('/welcome', auth, (req, res) => {
-    if (!req.session.chatRooms) {
-        app.locals.chatRoomsCollection.find({ hostID: app.locals.ObjectID(req.user._id) }).toArray()
-            .then(chatRooms => {
-                req.session.chatRooms = chatRooms
-                res.render('welcome', { user: req.user, chatRooms: chatRooms })
-            })
-            .catch(error => {
-                res.send(error)
-            })
-    }
-    else {
-        //console.log('Session Chatrooms: ', JSON.stringify(req.session.chatRooms))
-        res.render('welcome', { user: req.user, chatRooms: req.session.chatRooms })
-    }
-})
 
-//send message
+
+// ----------------------------------------------------------------------------
+// Chatroom ID post route to send messages
+// --------------------------------------------------------------------------
 app.post('/welcome/:_id', auth, (req, res) => {
     const message = new Message(req.params._id, req.user._id, req.user.username)
     message.text = req.body.message
@@ -108,154 +154,16 @@ app.post('/welcome/:_id', auth, (req, res) => {
         })
 })
 
-//init webcam
-app.get("/initWebcam", auth, (req,res)=>{
-    res.render('initWebcam', {user: req.user})
-})
-
-//webcam
-app.get("/1", (req, res) => {
-    res.render('webcam')
-})
-
-app.get('/friends', (req, res) => {
-    res.render('friends', { user: req.user, flash_message: req.flash('flash_message') })
-})
-
-app.post('/friends', (req, res) => {
-    const request = new Request(req.user.username, req.body.friendName[0])
-    var friendName = req.body.friendName[0]
-    //how to list all objects from a db and compare one attribute from each of them with something from ejs field 
-    app.locals.usersCollection.findOne({ username: friendName })
-        .then(friend => {
-            //we get all user objects in friends; now compare each of them to see if we find a match
-            if (friend) {
-                //if match is found then insert the name in request db collection
-                app.locals.requestsCollection.insertOne(request)
-                    .then(result => {
-                        req.flash('flash_message', "Friend added successfully")
-                        return res.redirect('/friends')
-                    })
-                    .catch(error => {
-                        console.log(error)
-                        res.send(error)
-                    })
-            } 
-            else {
-                res.redirect('/friends')
-            }
-        })
-        .catch(error => {
-            res.send(error)
-        })
-})
-
-app.get('/requests', (req, res) => {
-    app.locals.requestsCollection.find({}).toArray()
-        .then(senders => {
-            if(senders.length > 0)
-            {
-                console.log(sender)
-                res.render('requests', { senders: senders })
-            }
-            else
-            {
-                res.render('requests')
-            }
-        })
-        .catch(error => {
-            res.send(error)
-        })
-})
-
-app.get('/profile', auth, (req, res) => {
-    console.log(req.user)
-    res.render('profile', { user: req.user, flash_message: req.flash('flash_message') })
-})
-
-app.post('/profile', auth, (req, res) => {
-    const user = req.user;
-    const username = req.body.username;
-    const email = req.body.email;
-    const birthday = req.body.birthday;
-    const location = req.body.location;
-    const bio = req.body.bio;
-
-    const query = { _id: app.locals.ObjectID(user._id) }
-    const newValue = { $set: { username, email, birthday, location, bio } }
-
-    app.locals.usersCollection.updateOne(query, newValue)
-        .then(result => {
-            req.flash('flash_message', 'Profile update successful!')
-            res.redirect('/profile')
-        })
-        .catch(error => {
-            res.send(error)
-        })
-})
-
-app.get('/uploadImage', auth, (req, res) => {
-    res.render('uploadImage', { flash_message: req.flash('flash_message') })
-})
-
-
-const StorageOptions = multer.diskStorage({
-    destination: (req, file, callback) => {
-        callback(null, './public/images')
-    },
-    filename: (req, file, callback) => {
-        const rand = Math.random().toFixed(4).toString()
-        const originalName = rand + file.originalname.toString()
-        callback(null, originalName)
-    }
-})
-
-const imageUpload = multer({
-    storage: StorageOptions,
-    limits: { fileSize: MAX_FILESIZE },
-    fileFilter: (req, file, callback) => {
-        const ext = fileTypes.test(path.extname(file.originalname).toLowerCase())
-        const mimetype = fileTypes.test(file.mimetype)
-        if (ext && mimetype) {
-            return callback(null, true)
-        } else {
-            return callback('Error: Images (jpeg, jpg, png) image format only')
-        }
-    }
-}).single('imageButton')
-
-app.post('/uploadImage', auth, (req, res) => {
-    imageUpload(req, res, error => {
-        if (error) {
-            req.flash('flash_message', "Can't upload because: " + error)
-            return res.redirect('/uploadImage')
-        }
-        else if (!req.file) {
-            req.flash('flash_message', "No file selected")
-            return res.redirect('/uploadImage')
-        }
-
-        //update user collection
-        const user = req.user
-        const query = { _id: app.locals.ObjectID(user._id) }
-        const photoURL = req.file.filename
-        const newValue = { $set: { photoURL } }
-        app.locals.usersCollection.updateOne(query, newValue)
-            .then(result => {
-                req.flash('flash_message', 'Profile update successful!')
-                res.redirect('/profile')
-            })
-            .catch(error => {
-                res.send(error)
-            })
-        res.redirect('/profile')
-    })
-})
-
+// ----------------------------------------------------------------------------
+// Chatroom route
+// --------------------------------------------------------------------------
 app.get('/chatroom', (req, res) => {
     res.render('chatroom', { user: req.user })
 })
 
+// ----------------------------------------------------------------------------
+// Show route for chatrooms
+// --------------------------------------------------------------------------
 app.post('/chatroom', auth, (req, res) => {
 
     const user = User.deserialize(req.user)
@@ -286,31 +194,203 @@ app.post('/chatroom', auth, (req, res) => {
             res.send(error)
         })
 })
-//put chatroom id route here
 
-
-app.get('/login', (req, res) => {
-    res.render('login', { flash_message: req.flash('flash_message') })
+// ----------------------------------------------------------------------------
+// Initialize webcam route
+// --------------------------------------------------------------------------
+app.get("/initWebcam", auth, (req,res)=>{
+    res.render('initWebcam', {user: req.user})
 })
 
-app.post('/login', passConfig.passport.authenticate(
-    'loginStrategy',
-    { successRedirect: '/welcome', failureRedirect: 'back', failureFlash: true }
-))
 
-app.get('/signup', (req, res) => {
-    res.render('signup', { flash_message: req.flash('flash_message') })
+// ----------------------------------------------------------------------------
+// render webpack
+// --------------------------------------------------------------------------
+app.get("/1", (req, res) => {
+    res.render('webcam')
 })
 
-app.post('/signup', passConfig.passport.authenticate(
-    'signupStrategy',
-    { successRedirect: '/', failureRedirect: 'back', failureFlash: true }
-))
 
+// ----------------------------------------------------------------------------
+// Friends route
+// --------------------------------------------------------------------------
+app.get('/friends', (req, res) => {
+    res.render('friends', { user: req.user, flash_message: req.flash('flash_message') })
+})
+
+
+// ----------------------------------------------------------------------------
+// Show friends route 
+// --------------------------------------------------------------------------
+app.post('/friends', (req, res) => {
+    const request = new Request(req.user.username, req.body.friendName[0])
+    var friendName = req.body.friendName[0]
+    //how to list all objects from a db and compare one attribute from each of them with something from ejs field 
+    app.locals.usersCollection.findOne({ username: friendName })
+        .then(friend => {
+            //we get all user objects in friends; now compare each of them to see if we find a match
+            if (friend) {
+                //if match is found then insert the name in request db collection
+                app.locals.requestsCollection.insertOne(request)
+                    .then(result => {
+                        req.flash('flash_message', "Friend added successfully")
+                        return res.redirect('/friends')
+                    })
+                    .catch(error => {
+                        console.log(error)
+                        res.send(error)
+                    })
+            } 
+            else {
+                res.redirect('/friends')
+            }
+        })
+        .catch(error => {
+            res.send(error)
+        })
+})
+
+
+
+// ----------------------------------------------------------------------------
+// Requests route
+// --------------------------------------------------------------------------
+app.get('/requests', (req, res) => {
+    app.locals.requestsCollection.find({}).toArray()
+        .then(senders => {
+            if(senders.length > 0)
+            {
+                console.log(sender)
+                res.render('requests', { senders: senders })
+            }
+            else
+            {
+                res.render('requests')
+            }
+        })
+        .catch(error => {
+            res.send(error)
+        })
+})
+
+
+// ----------------------------------------------------------------------------
+// User profile route
+// --------------------------------------------------------------------------
+app.get('/profile', auth, (req, res) => {
+    console.log(req.user)
+    res.render('profile', { user: req.user, flash_message: req.flash('flash_message') })
+})
+
+
+// ----------------------------------------------------------------------------
+// User profile post route
+// --------------------------------------------------------------------------
+app.post('/profile', auth, (req, res) => {
+    const user = req.user;
+    const username = req.body.username;
+    const email = req.body.email;
+    const birthday = req.body.birthday;
+    const location = req.body.location;
+    const bio = req.body.bio;
+
+    const query = { _id: app.locals.ObjectID(user._id) }
+    const newValue = { $set: { username, email, birthday, location, bio } }
+
+    app.locals.usersCollection.updateOne(query, newValue)
+        .then(result => {
+            req.flash('flash_message', 'Profile update successful!')
+            res.redirect('/profile')
+        })
+        .catch(error => {
+            res.send(error)
+        })
+})
+
+
+// ----------------------------------------------------------------------------
+// Updating images route
+// --------------------------------------------------------------------------
+app.get('/uploadImage', auth, (req, res) => {
+    res.render('uploadImage', { flash_message: req.flash('flash_message') })
+})
+
+
+
+// ----------------------------------------------------------------------------
+// Using multer to upload a file for images
+// --------------------------------------------------------------------------
+const StorageOptions = multer.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, './public/images')
+    },
+    filename: (req, file, callback) => {
+        const rand = Math.random().toFixed(4).toString()
+        const originalName = rand + file.originalname.toString()
+        callback(null, originalName)
+    }
+})
+
+const imageUpload = multer({
+    storage: StorageOptions,
+    limits: { fileSize: MAX_FILESIZE },
+    fileFilter: (req, file, callback) => {
+        const ext = fileTypes.test(path.extname(file.originalname).toLowerCase())
+        const mimetype = fileTypes.test(file.mimetype)
+        if (ext && mimetype) {
+            return callback(null, true)
+        } else {
+            return callback('Error: Images (jpeg, jpg, png) image format only')
+        }
+    }
+}).single('imageButton')
+
+
+
+// ----------------------------------------------------------------------------
+// Upload image post route to upload the image
+// --------------------------------------------------------------------------
+app.post('/uploadImage', auth, (req, res) => {
+    imageUpload(req, res, error => {
+        if (error) {
+            req.flash('flash_message', "Can't upload because: " + error)
+            return res.redirect('/uploadImage')
+        }
+        else if (!req.file) {
+            req.flash('flash_message', "No file selected")
+            return res.redirect('/uploadImage')
+        }
+
+        //update user collection
+        const user = req.user
+        const query = { _id: app.locals.ObjectID(user._id) }
+        const photoURL = req.file.filename
+        const newValue = { $set: { photoURL } }
+        app.locals.usersCollection.updateOne(query, newValue)
+            .then(result => {
+                req.flash('flash_message', 'Profile update successful!')
+                res.redirect('/profile')
+            })
+            .catch(error => {
+                res.send(error)
+            })
+        res.redirect('/profile')
+    })
+})
+
+
+
+
+// ----------------------------------------------------------------------------
+// Contacts route
+// --------------------------------------------------------------------------
 app.get('/contactus', (req, res) => {
     res.render('contactus')
 })
 
+// ----------------------------------------------------------------------------
+// Contacts post route to email issues
+// --------------------------------------------------------------------------
 app.post('/contactus', (req, res) => {
 
     const output = `
@@ -362,11 +442,18 @@ app.post('/contactus', (req, res) => {
     main().catch(console.error);
 })
 
+
+// ----------------------------------------------------------------------------
+// Logout route
+// --------------------------------------------------------------------------
 app.get('/logout', (req, res) => {
     req.logout()
     res.redirect('/')
 })
 
+// ----------------------------------------------------------------------------
+// Middlewares for authentication and admin authentication
+// --------------------------------------------------------------------------
 function auth(req, res, next) {
     const user = req.user
     if (!user) {
