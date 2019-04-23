@@ -526,10 +526,13 @@ app.get('/profile', auth, (req, res) => {
 // ----------------------------------------------------------------------------
 // User profile post route
 // --------------------------------------------------------------------------
-app.post('/profile', auth, (req, res) => {
+const passwordcrypto = require('./passwordcrypto')
+
+app.post('/profile', auth,(req, res) => {
     const user = req.user;
     const username = req.body.username;
-    const password = req.body.password;
+    const newPassword = req.body.password;
+    const password = passwordcrypto.hashPassword(newPassword)
     const email = req.body.email;
     const birthday = req.body.birthday;
     const location = req.body.location;
@@ -537,10 +540,9 @@ app.post('/profile', auth, (req, res) => {
 
     const query = { _id: app.locals.ObjectID(user._id) }
     const newValue = { $set: { username, password, email, birthday, location, bio } }
-
     app.locals.usersCollection.updateOne(query, newValue)
         .then(result => {
-            req.flash('flash_message', 'Profile update successful!')
+            req.flash('flash_message', "Updated successfully")
             res.redirect('/profile')
         })
         .catch(error => {
