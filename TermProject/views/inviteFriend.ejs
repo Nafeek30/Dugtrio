@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <% include ./partials/header %>
+    <title>Friends</title>
+</head>
+
+<body>
+
+    <div class="container">
+            <ul class="list-group">
+                  <%for(const friend of friends) { %>
+                  <li class="list-group-item">
+                      <img src="/public/images/<%= friend.photoURL %>" width="30" height="30"
+                          class="circlePhoto" alt="<%= friend.username %>'s profile photo">
+                      <strong><%= friend.username %> </strong>
+                      <button class="btn btn-outline-success" onclick="invite('<%= friend._id %>')">
+                          Invite
+                      </button>
+                  </li>
+                  <% } %>
+                </ul>
+          </div> 
+
+    <script>
+        function invite(friendID)
+        {
+            window.opener.postMessage('_id:' + friendID, '*');
+            window.close();
+        }
+    </script>
+    <%  include ./partials/scripts %>
+</body>
+
+</html>

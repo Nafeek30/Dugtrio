@@ -13,6 +13,14 @@
 <body onload="setupMessages();">
    <% include ./partials/nav %>
 
+   <% if(typeof(flash_message) !== 'undefined'){%>
+   <% if(flash_message.length >0) { %>
+    <div class="alert alert-success" role="alert">
+        <%= flash_message %>
+    </div>
+    <% } %>
+    <%}%>
+
 <!--********************************************************************************************************--> 
 <!--*       List of Chat Rooms                                                                             *-->
 <!--********************************************************************************************************--> 
@@ -46,7 +54,7 @@
                     for(const message of messages){%> 
                         <div class="message">
                             <div class="userInfo">
-                                <img src="/public/images/<%=user.photoURL%>" width="30" height="30"
+                                <img src="/public/images/<%=message.userPhotoURL%>" width="30" height="30"
                                     class="circlePhoto">
                                     <small><%=message.username%></small>
                             </div>
@@ -55,8 +63,8 @@
                                 <p><%=message.text%></p>
                             </div>
                         </div>
-                    <%}
-                }%>
+                    <%}%>
+                
         </div>
         <form method="POST" id="messageSender" action='/welcome/<%=openChatRoom._id%>'>
             <div class="chatroomInputs">
@@ -70,7 +78,7 @@
                         </button>
                         <div class="dropdown-menu">
                             <!-- Dropdown menu links -->
-                            <a class="dropdown-item" >Insert Friend</a>
+                            <a class="dropdown-item" onclick="inviteFriend('<%= openChatRoom._id %>')">Invite Friend</a>
                             <a class="dropdown-item">Voice Call</a>
                             <a class="dropdown-item" onclick="WebcamPage()">Video Call</a>
                             <a class="dropdown-item" >File</a>
@@ -79,6 +87,7 @@
                 </div>
             </div>
         </form>
+            <%}%>
         <%}%>
             </div>
         </div>
@@ -108,6 +117,24 @@
 
         function WebcamPage(){
             window.open("/initWebcam", "Init Webcam", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=500,height=600");
+        }
+
+        function inviteFriend(chatRoomID)
+        {
+            let friendsWindow = open('/inviteFriend', 'Invite a Friend!', 'width=300,height=300')
+            friendsWindow.focus();
+            window.addEventListener("message", event => {
+                if(event.origin == 'http://localhost:3000')
+                {
+                    let friendID = event.data;
+                    if(friendID.startsWith('_id:'))
+                    {
+                        friendID = friendID.substring(4);
+                        //redirect
+                        window.location.replace(`/sendInvite/${chatRoomID}?friendID=${friendID}`);
+                    }
+                }
+            });
         }
     </script>
 

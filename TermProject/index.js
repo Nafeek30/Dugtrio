@@ -7,6 +7,7 @@ const ChatRoom = require('./model/ChatRoom.js')
 const User = require('./model/User.js')
 const Message = require('./model/Message.js')
 const Request = require('./model/Request.js')
+const Invite = require('./model/Invite.js')
 const utility = require('./utility.js')
 const PORT = process.env.PORT || 3000
 
@@ -90,7 +91,15 @@ app.get('/', (req, res) => {
 // --------------------------------------------------------------------------
 app.get('/welcome', auth, (req, res) => {
     if (!req.session.chatRooms) {
-        app.locals.chatRoomsCollection.find({ hostID: app.locals.ObjectID(req.user._id) }).toArray()
+        const userID = app.locals.ObjectID(req.user._id)
+        app.locals.chatRoomsCollection.find(
+            {$or: [
+                { hostID:  userID},
+                { adminID: userID},
+                {
+                    userIDs: {$in: [userID]}
+                }
+            ]}).toArray()
             .then(chatRooms => {
                 req.session.chatRooms = chatRooms
                 res.render('welcome', { user: req.user, chatRooms: chatRooms })
@@ -127,7 +136,8 @@ app.get('/welcome/:_id', auth, (req, res) => {
                     chatRooms: req.session.chatRooms,
                     openChatRoom: openChatRoom,
                     messages: messages,
-                    utility: utility
+                    utility: utility,
+                    flash_message: req.flash('flash_message')
                 })
             })
             .catch(error => {
@@ -143,7 +153,7 @@ app.get('/welcome/:_id', auth, (req, res) => {
 // Chatroom ID post route to send messages
 // --------------------------------------------------------------------------
 app.post('/welcome/:_id', auth, (req, res) => {
-    const message = new Message(req.params._id, req.user._id, req.user.username)
+    const message = new Message(req.params._id, req.user._id, req.user.username, req.user.photoURL)
     message.text = req.body.message
     app.locals.messagesCollection.insertOne(message)
         .then(result => {
@@ -152,6 +162,109 @@ app.post('/welcome/:_id', auth, (req, res) => {
         .catch(error => {
             res.send(`${error}`)
         })
+})
+
+// ----------------------------------------------------------------------------
+// Welcome page route: choose a friend to invite
+// --------------------------------------------------------------------------
+app.get('/inviteFriend', (req, res) => {
+    const friendsQuery = []
+    for(friendID of req.user.friendIDs)
+    {
+        friendsQuery.push({_id: app.locals.ObjectID(friendID)})
+    }
+    if(friendsQuery.length > 0)
+    {
+        app.locals.usersCollection.find({$or: friendsQuery }).toArray()
+            .then(friends => {
+                res.render('inviteFriend', { user: req.user, friends: friends })
+            })
+            .catch(error => {
+                //error finding friends
+                res.send(`${error}`)
+            })
+    }
+    else
+    {
+        res.render('inviteFriend', { user: req.user, friends: []})
+    }
+})
+
+// ----------------------------------------------------------------------------
+// Send Invite route: sends an chatroom invite to a friend
+// --------------------------------------------------------------------------
+app.get('/sendInvite/:chatRoomID', (req, res) => {
+    const friendID = app.locals.ObjectID(req.query.friendID)
+    const chatRoom = req.session.chatRooms.find(chatRoom => chatRoom._id == req.params.chatRoomID)
+    chatRoom._id = app.locals.ObjectID(chatRoom._id)
+    chatRoom.adminID = app.locals.ObjectID(chatRoom.adminID)
+
+    if(chatRoom.adminID.equals(friendID) || chatRoom.userIDs.find(_id => _id.equals(friendID)))
+    {
+        req.flash('flash_message', 'That friend is already in your chatroom.')
+        res.redirect(`/welcome/${chatRoom._id}`)
+    }
+    else
+    {
+        const invite = new Invite(User.deserialize(req.user), friendID, chatRoom)
+        //insert if not exists
+        app.locals.invitesCollection.updateOne(
+            {$and: [{'receiver._id': friendID}, {'chatRoom._id': chatRoom._id}]},
+            {
+                $setOnInsert: {
+                    sender: invite.sender, 
+                    receiverID: invite.receiverID, 
+                    chatRoom: invite.chatRoom
+                }
+            },
+            {upsert: true}
+        )
+        .then(result => {
+            req.flash('flash_message', 'Invite sent successfully.')
+            res.redirect(`/welcome/${chatRoom._id}`)
+        })
+        .catch(error => {
+            res.send(`${error}`)
+        })
+    }
+})
+
+// ----------------------------------------------------------------------------
+// Accept or Reject Invite route
+// --------------------------------------------------------------------------
+//"/friends/<%= invite._id %>?chatRoomID=<%= invite.chatRoom._id %>&isAccepted=true"
+app.get('/friends/:_id', (req, res) => {
+    const inviteID = app.locals.ObjectID(req.params._id)
+    const chatRoomID = app.locals.ObjectID(req.query.chatRoomID)
+    const isAccepted = (req.query.isAccepted == 'true')
+
+    if(isAccepted)
+    {
+        app.locals.chatRoomsCollection.updateOne(
+            {_id: chatRoomID},
+            {$push: {userIDs: app.locals.ObjectID(req.user._id)}}
+        )
+        .then(result => {
+            app.locals.invitesCollection.deleteOne({_id: inviteID})
+            .then(result => {
+                req.flash('flash_message', 'Invite accepted.')
+                req.session.chatRooms = null
+                res.redirect('/friends')
+            })
+            .catch(error => {
+                //error deleting old invite
+                res.send(`${error}`)
+            })
+        })
+        .catch(error => {
+            //error accepting invite
+            res.send(`${error}`)
+        })
+    }
+    else
+    {
+        //TODO: reject invite
+    }
 })
 
 // ----------------------------------------------------------------------------
@@ -224,7 +337,22 @@ app.get('/friends', auth, (req, res) => {
     {
         app.locals.usersCollection.find({$or: friendsQuery }).toArray()
             .then(friends => {
-                res.render('friends', { user: req.user, friends: friends, flash_message: req.flash('flash_message') })
+                app.locals.invitesCollection.find({receiverID: app.locals.ObjectID(req.user._id)}).toArray()
+                .then(invites => {
+                    res.render(
+                        'friends', 
+                        { 
+                            user: req.user, 
+                            friends: friends, 
+                            invites: invites,
+                            flash_message: req.flash('flash_message') 
+                        }
+                    )
+                })
+                .catch(error => {
+                    //error finding invites
+                    res.send(`${error}`)
+                })
             })
             .catch(error => {
                 //error finding friends
@@ -233,7 +361,15 @@ app.get('/friends', auth, (req, res) => {
     }
     else
     {
-        res.render('friends', { user: req.user, friends: [], flash_message: req.flash('flash_message') })
+        res.render(
+            'friends', 
+            { 
+                user: req.user, 
+                friends: [], 
+                invites: [],
+                flash_message: req.flash('flash_message') 
+            }
+        )
     }
 })
 
@@ -374,7 +510,7 @@ app.get('/requests/:_id', auth, (req, res) => {
     }
     else
     {
-        //reject request
+        //TODO: reject request
     }
 })
 
@@ -552,8 +688,9 @@ app.post('/contactus', (req, res) => {
 // Logout route
 // --------------------------------------------------------------------------
 app.get('/logout', (req, res) => {
-    req.logout()
-    res.redirect('/')
+    req.session.destroy(error => {
+        res.redirect('/')
+    })
 })
 
 // ----------------------------------------------------------------------------
