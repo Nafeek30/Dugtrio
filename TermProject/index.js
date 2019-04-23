@@ -204,7 +204,7 @@ app.get("/initWebcam", auth, (req,res)=>{
 
 
 // ----------------------------------------------------------------------------
-// render webpack
+// render webcam
 // --------------------------------------------------------------------------
 app.get("/1", (req, res) => {
     res.render('webcam')
@@ -289,13 +289,14 @@ app.get('/profile', auth, (req, res) => {
 app.post('/profile', auth, (req, res) => {
     const user = req.user;
     const username = req.body.username;
+    const password = req.body.password;
     const email = req.body.email;
     const birthday = req.body.birthday;
     const location = req.body.location;
     const bio = req.body.bio;
 
     const query = { _id: app.locals.ObjectID(user._id) }
-    const newValue = { $set: { username, email, birthday, location, bio } }
+    const newValue = { $set: { username, password, email, birthday, location, bio } }
 
     app.locals.usersCollection.updateOne(query, newValue)
         .then(result => {

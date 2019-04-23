@@ -37,6 +37,12 @@
             </div>
 
             <div class="col-sm-3 my-1" id="horizontalAlign">
+                <label for="email">Password</label>
+                <input type="password" class="form-control" name="password" id="password" placeholder="Enter password" value="<%= user.password %>"
+                    required>
+            </div>
+
+            <div class="col-sm-3 my-1" id="horizontalAlign">
                 <div class="form-group">
                     <label for="birthday">Date of Birth</label>
                     <input type="date" class="form-control" id="birthday" name="birthday" value="<%= user.birthday %>">
