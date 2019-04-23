@@ -223,17 +223,15 @@ app.get('/friends', (req, res) => {
 // Show friends route 
 // --------------------------------------------------------------------------
 app.post('/friends', (req, res) => {
-    const request = new Request(req.user.username, req.body.friendName[0])
-    var friendName = req.body.friendName[0]
-    //how to list all objects from a db and compare one attribute from each of them with something from ejs field 
+    const friendName = req.body.friendName
     app.locals.usersCollection.findOne({ username: friendName })
         .then(friend => {
-            //we get all user objects in friends; now compare each of them to see if we find a match
             if (friend) {
-                //if match is found then insert the name in request db collection
+                //if match is found then insert the user in request db collection
+                const request = new Request(sender = req.user, receiver = friend)
                 app.locals.requestsCollection.insertOne(request)
                     .then(result => {
-                        req.flash('flash_message', "Friend added successfully")
+                        req.flash('flash_message', "Friend request sent.")
                         return res.redirect('/friends')
                     })
                     .catch(error => {
@@ -242,6 +240,7 @@ app.post('/friends', (req, res) => {
                     })
             } 
             else {
+                req.flash('flash_message', 'No one with that username was found.')
                 res.redirect('/friends')
             }
         })
@@ -255,17 +254,17 @@ app.post('/friends', (req, res) => {
 // ----------------------------------------------------------------------------
 // Requests route
 // --------------------------------------------------------------------------
-app.get('/requests', (req, res) => {
+app.get('/requests', auth, (req, res) => {
     app.locals.requestsCollection.find({}).toArray()
-        .then(senders => {
-            if(senders.length > 0)
+        .then(requests => {
+            if(requests.length > 0)
             {
-                console.log(senders)
-                res.render('requests', { senders: senders })
+                console.log(requests)
+                res.render('requests', { requests: requests })
             }
             else
             {
-                res.render('requests', { senders: [] })
+                res.render('requests', { requests: [] })
             }
         })
         .catch(error => {
@@ -273,6 +272,25 @@ app.get('/requests', (req, res) => {
         })
 })
 
+// ----------------------------------------------------------------------------
+// Requests route: accept or reject request
+// --------------------------------------------------------------------------
+app.get('/requests/:_id', auth, (req, res) => {
+    const requestID = ObjectID(req.params._id)
+    const senderID = ObjectID(req.query.senderID)
+    const isAccepted = (req.query.isAccepted == 'true')
+
+    if(isAccepted)
+    {
+        const bulkAccept = app.locals.usersCollection.initializeUnorderedBulkOp();
+        // bulkAccept.findOne({_id: ObjectID(req.user._id)}).updateOne()
+        // bulkAccept.findOne({_id: senderID}).updateOne()
+    }
+    else
+    {
+        //reject request
+    }
+})
 
 // ----------------------------------------------------------------------------
 // User profile route
