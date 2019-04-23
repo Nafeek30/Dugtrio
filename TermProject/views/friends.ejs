@@ -29,6 +29,18 @@
       </form>
     </div> 
 
+    <div class="container">
+            <ul class="list-group">
+                  <%for(const friend of friends) { %>
+                  <li class="list-group-item">
+                      <img src="/public/images/<%= friend.photoURL %>" width="30" height="30"
+                          class="circlePhoto" alt="<%= friend.username %>'s profile photo">
+                      <strong><%= friend.username %> </strong>
+                  </li>
+                  <% } %>
+                </ul>
+          </div> 
+
     <%  include ./partials/scripts %>
 </body>
 

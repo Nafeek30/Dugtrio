@@ -96,7 +96,7 @@ app.get('/welcome', auth, (req, res) => {
                 res.render('welcome', { user: req.user, chatRooms: chatRooms })
             })
             .catch(error => {
-                res.send(error)
+                res.send(`${error}`)
             })
     }
     else {
@@ -131,7 +131,7 @@ app.get('/welcome/:_id', auth, (req, res) => {
                 })
             })
             .catch(error => {
-                res.send(error)
+                res.send(`${error}`)
             })
 
     }
@@ -150,7 +150,7 @@ app.post('/welcome/:_id', auth, (req, res) => {
             res.redirect(`/welcome/${req.params._id}`)
         })
         .catch(error => {
-            res.send(error)
+            res.send(`${error}`)
         })
 })
 
@@ -186,12 +186,12 @@ app.post('/chatroom', auth, (req, res) => {
                         res.redirect('/welcome')
                     })
                     .catch(error => {
-                        res.send(error)
+                        res.send(`${error}`)
                     })
             }
         })
         .catch(error => {
-            res.send(error)
+            res.send(`${error}`)
         })
 })
 
@@ -214,8 +214,27 @@ app.get("/1", (req, res) => {
 // ----------------------------------------------------------------------------
 // Friends route
 // --------------------------------------------------------------------------
-app.get('/friends', (req, res) => {
-    res.render('friends', { user: req.user, flash_message: req.flash('flash_message') })
+app.get('/friends', auth, (req, res) => {
+    const friendsQuery = []
+    for(friendID of req.user.friendIDs)
+    {
+        friendsQuery.push({_id: app.locals.ObjectID(friendID)})
+    }
+    if(friendsQuery.length > 0)
+    {
+        app.locals.usersCollection.find({$or: friendsQuery }).toArray()
+            .then(friends => {
+                res.render('friends', { user: req.user, friends: friends, flash_message: req.flash('flash_message') })
+            })
+            .catch(error => {
+                //error finding friends
+                res.send(`${error}`)
+            })
+    }
+    else
+    {
+        res.render('friends', { user: req.user, friends: [], flash_message: req.flash('flash_message') })
+    }
 })
 
 
@@ -224,29 +243,76 @@ app.get('/friends', (req, res) => {
 // --------------------------------------------------------------------------
 app.post('/friends', (req, res) => {
     const friendName = req.body.friendName
+    if(friendName == req.user.username)
+    {
+        req.flash('flash_message', 'Wow, you really are alone, huh?')
+        return res.redirect('/friends')
+    }
     app.locals.usersCollection.findOne({ username: friendName })
         .then(friend => {
-            if (friend) {
-                //if match is found then insert the user in request db collection
-                const request = new Request(sender = req.user, receiver = friend)
-                app.locals.requestsCollection.insertOne(request)
-                    .then(result => {
-                        req.flash('flash_message', "Friend request sent.")
-                        return res.redirect('/friends')
+            if (friend) 
+            {
+                const userID = app.locals.ObjectID(req.user._id)
+                //.equals must be used when comparing mongodb ObjectIds
+                if(friend.friendIDs.find(_id => _id.equals(userID)))
+                {
+                    //don't send request if already friends
+                    req.flash('flash_message', `${friend.username} is already your friend!`)
+                    return res.redirect('/friends')
+                }
+                else
+                {
+                    //make sure request does not exist from either user or friend
+                    app.locals.requestsCollection.find({
+                        $or: [
+                            { $and: [
+                                { 'sender._id': userID},
+                                { 'receiver.username': friendName }
+                            ] },
+                            { $and: [
+                                { 'sender.username': friendName },
+                                { 'receiver._id': userID} 
+                            ] }
+                        ]
+                    }).toArray()
+                    .then(requests => {
+                        if(requests.length == 0)
+                        {
+                            //only insert if request does not exist
+                            app.locals.requestsCollection.insertOne(
+                                new Request(sender = User.deserialize(req.user), receiver = User.deserialize(friend))
+                            )
+                            .then(result => {
+                                req.flash('flash_message', `Friend request sent to ${friendName}`)
+                                res.redirect('/friends')
+                            })
+                            .catch(error => {
+                                //error sending request
+                                res.send(`${error}`)
+                            })
+                        }
+                        else
+                        {
+                            //friend request already exists
+                            req.flash('flash_message', `That friend request is already pending.`)
+                            res.redirect('/friends')
+                        }
                     })
                     .catch(error => {
-                        console.log(error)
-                        res.send(error)
+                        //finding requests error
+                        res.send(`${error}`)
                     })
+                }
             } 
-            else {
+            else 
+            {
                 req.flash('flash_message', 'No one with that username was found.')
                 res.redirect('/friends')
             }
-        })
-        .catch(error => {
-            res.send(error)
-        })
+    })
+    .catch(error => {
+        res.send(`${error}`)
+    })
 })
 
 
@@ -255,7 +321,7 @@ app.post('/friends', (req, res) => {
 // Requests route
 // --------------------------------------------------------------------------
 app.get('/requests', auth, (req, res) => {
-    app.locals.requestsCollection.find({}).toArray()
+    app.locals.requestsCollection.find({'receiver._id': app.locals.ObjectID(req.user._id)}).toArray()
         .then(requests => {
             if(requests.length > 0)
             {
@@ -268,7 +334,7 @@ app.get('/requests', auth, (req, res) => {
             }
         })
         .catch(error => {
-            res.send(error)
+            res.send(`${error}`)
         })
 })
 
@@ -276,15 +342,35 @@ app.get('/requests', auth, (req, res) => {
 // Requests route: accept or reject request
 // --------------------------------------------------------------------------
 app.get('/requests/:_id', auth, (req, res) => {
-    const requestID = ObjectID(req.params._id)
-    const senderID = ObjectID(req.query.senderID)
+    const requestID = app.locals.ObjectID(req.params._id)
+    const senderID = app.locals.ObjectID(req.query.senderID)
+    const userID = app.locals.ObjectID(req.user._id)
     const isAccepted = (req.query.isAccepted == 'true')
 
     if(isAccepted)
     {
         const bulkAccept = app.locals.usersCollection.initializeUnorderedBulkOp();
-        // bulkAccept.findOne({_id: ObjectID(req.user._id)}).updateOne()
-        // bulkAccept.findOne({_id: senderID}).updateOne()
+        //find user and add sender as friend
+        //$push is used to append to arrays in mongodb
+        bulkAccept.find({_id: userID}).updateOne({$push: {friendIDs: senderID}})
+        //find friend and add user as friend
+        bulkAccept.find({_id: senderID}).updateOne({$push: {friendIDs: userID}})
+        bulkAccept.execute()
+            .then(result => {
+                //remove request
+                app.locals.requestsCollection.deleteOne({_id: requestID})
+                    .then(result => {
+                        res.redirect('/requests')
+                    })
+                    .catch(error => {
+                        //remove request from request list failed
+                        res.send(`${error}`)
+                    })
+            })
+            .catch(error => {
+                //add friend failed
+                res.send(`${error}`)
+            })
     }
     else
     {
@@ -322,7 +408,7 @@ app.post('/profile', auth, (req, res) => {
             res.redirect('/profile')
         })
         .catch(error => {
-            res.send(error)
+            res.send(`${error}`)
         })
 })
 
@@ -391,7 +477,7 @@ app.post('/uploadImage', auth, (req, res) => {
                 res.redirect('/profile')
             })
             .catch(error => {
-                res.send(error)
+                res.send(`${error}`)
             })
         res.redirect('/profile')
     })

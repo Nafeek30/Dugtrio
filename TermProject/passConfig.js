@@ -60,6 +60,9 @@ function config(app){
                             })
                     }
                 })
+                .catch(error => {
+                    return done(error)
+                })
         }
     )
     passport.use('signupStrategy', signupStrategy)

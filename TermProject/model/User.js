@@ -13,7 +13,6 @@ class User
         this.bio = "";
         this.isAdmin = false;
         this.friendIDs = [];
-        this.friendRequests = [];
         this.photoURL = "defaultProfile.png";
     }
 
@@ -29,7 +28,6 @@ class User
             bio: this.bio,
             isAdmin: this.isAdmin,
             friendIDs: this.friendIDs,
-            friendRequests: this.friendRequests,
             photoURL: this.photoURL
         };
     }
@@ -43,7 +41,6 @@ class User
         deserializedUser.bio = user.bio;
         deserializedUser.isAdmin = user.isAdmin;
         deserializedUser.friendIDs = user.friendIDs;
-        deserializedUser.friendRequests = user.friendRequests;
         deserializedUser.photoURL = user.photoURL;
         
         return deserializedUser;

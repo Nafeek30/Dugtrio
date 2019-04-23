@@ -13,21 +13,21 @@
 <body>
     <% include ./partials/nav %>
     
-        <div class="container">
-          <ul class="list-group">
-                <%for(const request of requests) { %>
-                <li class="list-group-item">
-                    <img src="/public/images/<%= request.sender.photoURL %>" width="30" height="30"
-                        class="circlePhoto" alt="<%= request.sender.username %>'s profile photo">
-                    <strong><%= request.sender.username %> </strong>
-                    <a role="button" class="btn btn-outline-success" 
-                        href="/requests/<%= request._id %>?senderID=<%= request.sender._id %>&isAccepted=true">
-                        +
-                    </a>
-                </li>
-                <% } %>
-              </ul>
-        </div>        
+    <div class="container">
+        <ul class="list-group">
+            <%for(const request of requests) { %>
+            <li class="list-group-item">
+                <img src="/public/images/<%= request.sender.photoURL %>" width="30" height="30"
+                    class="circlePhoto" alt="<%= request.sender.username %>'s profile photo">
+                <strong><%= request.sender.username %> </strong>
+                <a role="button" class="btn btn-outline-success" 
+                    href="/requests/<%= request._id %>?senderID=<%= request.sender._id %>&isAccepted=true">
+                    +
+                </a>
+            </li>
+            <% } %>
+            </ul>
+    </div>        
 
     <%  include ./partials/scripts %>
 </body>
