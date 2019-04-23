@@ -260,12 +260,12 @@ app.get('/requests', (req, res) => {
         .then(senders => {
             if(senders.length > 0)
             {
-                console.log(sender)
+                console.log(senders)
                 res.render('requests', { senders: senders })
             }
             else
             {
-                res.render('requests')
+                res.render('requests', { senders: [] })
             }
         })
         .catch(error => {
