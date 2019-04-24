@@ -198,8 +198,9 @@ app.get('/sendInvite/:chatRoomID', (req, res) => {
     const chatRoom = req.session.chatRooms.find(chatRoom => chatRoom._id == req.params.chatRoomID)
     chatRoom._id = app.locals.ObjectID(chatRoom._id)
     chatRoom.adminID = app.locals.ObjectID(chatRoom.adminID)
+    chatRoom.hostID = app.locals.ObjectID(chatRoom.hostID)
 
-    if(chatRoom.adminID.equals(friendID) || chatRoom.userIDs.find(_id => _id.equals(friendID)))
+    if(chatRoom.hostID.equals(friendID) || chatRoom.adminID.equals(friendID) || chatRoom.userIDs.find(_id => app.locals.ObjectID(_id).equals(friendID)))
     {
         req.flash('flash_message', 'That friend is already in your chatroom.')
         res.redirect(`/welcome/${chatRoom._id}`)
