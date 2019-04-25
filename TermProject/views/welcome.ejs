@@ -94,6 +94,8 @@
     </div>
 
     <script>
+        var localUser = JSON.parse('<%if(typeof(localUser) != "undefined"){%><%-localUser%><%}else{%>{}<%}%>');    //get user object from ejs
+
         function setupMessages() {
             let messagesContainer = document.getElementById('messagesContainer');
             if (messagesContainer) {
@@ -101,18 +103,6 @@
                 //https://www.codeproject.com/Questions/632251/How-to-make-div-scroll-to-bottom-on-load
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
-        }
-
-        function checkKey(event) {
-            let allowNormalKeyFunction = true;
-            if (!event.shiftKey && event.code == 'Enter') {
-                allowNormalKeyFunction = false;
-                let messageBox = document.getElementById('messageBox');
-                messageBox.value = messageBox.value.trim()
-                if(messageBox.value.length > 0)
-                    document.getElementById('messageSender').submit();
-            }
-            return allowNormalKeyFunction;
         }
 
         function WebcamPage(){

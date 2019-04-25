@@ -9,6 +9,7 @@ const Message = require('./model/Message.js')
 const Request = require('./model/Request.js')
 const Invite = require('./model/Invite.js')
 const utility = require('./utility.js')
+
 const PORT = process.env.PORT || 3000
 
 const session = require('express-session')
@@ -31,12 +32,23 @@ app.use(session({
     saveUninitialized: false,
 }))
 
-
 app.set('view engine', 'ejs')
 app.set('views', './views')
 app.use('/public', express.static(__dirname + '/public'))
 
 database.startDBandApp(app, PORT)
+    .then(result => {
+        app.locals.io.on('connection', socket => {
+            console.log('Established connection on socket')
+
+            socket.on('chat', message => {
+                app.locals.io.sockets.emit('chat', message)
+            })
+        })
+    })
+    .catch(error => {
+        console.log('Error returning from startDBandApp: ', error)
+    })
 
 app.use(flash())
 
@@ -137,7 +149,8 @@ app.get('/welcome/:_id', auth, (req, res) => {
                     openChatRoom: openChatRoom,
                     messages: messages,
                     utility: utility,
-                    flash_message: req.flash('flash_message')
+                    flash_message: req.flash('flash_message'),
+                    localUser: JSON.stringify(req.user) //user is now available to local js on client-side
                 })
             })
             .catch(error => {
