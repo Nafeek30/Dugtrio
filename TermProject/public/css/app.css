@@ -84,6 +84,15 @@
     position: relative;
     top: 1.5em;
     left: 3em;
+    width: 7%;
+    float: left;
+    clear: both;
+}
+
+.userInfoRight{
+    position: relative;
+    top: 1.5em;
+    left: 48em;
     width: 5%;
     float: left;
     clear: both;
@@ -95,8 +104,8 @@
 
 .messageInfo {
     position: relative;
-    width: 80%;
-    right: 3em;
+    width: 70%;
+    right: 8em;
     float: right;
 }
 
@@ -107,6 +116,25 @@
     color: white;
     padding: 0.5em;
 }
+
+.messageInfoRight {
+    position: relative;
+    width: 70%;
+    right: 5em;
+    float: right;
+    text-align: right;
+}
+
+.messageInfoRight p{
+    border-radius: 1em;
+    border: 3px solid rgb(64, 161, 161);
+    background-color: rgb(58, 67, 68);
+    color: white;
+    padding: 0.5em;
+    text-align: right;
+}
+
+
 
 #chatOptionsContainer
 {
