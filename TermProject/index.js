@@ -618,8 +618,8 @@ app.get('/uploadImage', auth, (req, res) => {
 // --------------------------------------------------------------------------
 app.get('/adminSetting', authAsAdmin, (req,res)=>{
     app.locals.usersCollection.find({}).toArray()
-        .then(user=>{
-            res.render('adminSetting', {user})
+        .then(users=>{
+            res.render('adminSetting', {user:req.user, users})
         })
         .catch(error=>{
             console.log("Can't open admin setting page")
