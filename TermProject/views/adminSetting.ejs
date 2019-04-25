@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <% include ./partials/header %>
+    <title>Admin Setting</title>
+</head>
+
+<body>
+    <% include ./partials/nav %>
+    <br>
+    <div class="container">
+        <div class="jumbotron">
+            <h3 class="text-center">Control Panel</h3>
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Users</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for(const account of user) { %>
+                    <% if(!account.isAdmin) { %>
+                    <tr>
+                        <td>
+                            <%=account.username%>
+                        </td>
+                        <td>
+                            <form action="/admin/delete" method="POST">
+                                <input type="hidden" name="_id" value="<%= account._id%>">
+                                <button style="float:right" type="submit" class="btn btn-outline-danger">-</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <% } %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <%  include ./partials/scripts %>
+</body>
+
+</html>

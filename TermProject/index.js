@@ -579,6 +579,50 @@ app.get('/uploadImage', auth, (req, res) => {
     res.render('uploadImage', { flash_message: req.flash('flash_message') })
 })
 
+// ----------------------------------------------------------------------------
+// Admin Setting 
+// --------------------------------------------------------------------------
+app.get('/adminSetting', authAsAdmin, (req,res)=>{
+    app.locals.usersCollection.find({}).toArray()
+        .then(user=>{
+            res.render('adminSetting', {user})
+        })
+        .catch(error=>{
+            console.log("Can't open admin setting page")
+        })
+})
+
+app.post('/admin/delete', authAsAdmin, (req,res)=>{
+    const _id = req.body._id
+    const query = { _id: app.locals.ObjectID(_id) }
+    const cquery = { hostID: app.locals.ObjectID(_id) }
+    const rquery = { 'sender._id': app.locals.ObjectID(_id) }
+    const iquery = { 'sender._id': app.locals.ObjectID(_id) }
+    app.locals.chatRoomsCollection.deleteMany(cquery)
+        .then(result => {
+            app.locals.requestsCollection.deleteMany(rquery)
+                .then(result => {
+                    app.locals.invitesCollection.deleteMany(iquery)
+                        .then(result => {
+                            app.locals.usersCollection.deleteOne(query)
+                                .then(result => {
+                                    res.redirect('/adminSetting')
+                                })
+                                .catch(error => {
+                                    console.log("Error deleting account")
+                                })
+                        })
+                        .catch(error => { 
+                            console.log("Error deleting invite")
+                        })
+                })
+                .catch(error => { console.log("Error deleting request")
+            })
+        })
+        .catch(error => {
+            console.log("Error deleting chatroom")
+        })
+})
 
 
 // ----------------------------------------------------------------------------
