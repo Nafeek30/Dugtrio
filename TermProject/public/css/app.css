@@ -62,7 +62,7 @@
 
 #messagesContainer {
     overflow-y: scroll;
-    height: 85%;
+    height: 89%;
 }
 
 #addChatroom {
@@ -83,7 +83,7 @@
 .userInfo{
     position: relative;
     top: 1.5em;
-    left: 3em;
+    left: 1em;
     width: 7%;
     float: left;
     clear: both;
@@ -92,20 +92,16 @@
 .userInfoRight{
     position: relative;
     top: 1.5em;
-    left: 48em;
-    width: 5%;
-    float: left;
+    right: 1em;
+    width: 7%;
+    float: right;
     clear: both;
-}
-
-.message {
-    /*margin-bottom: none;*/
 }
 
 .messageInfo {
     position: relative;
     width: 70%;
-    right: 8em;
+    right: 10em;
     float: right;
 }
 
@@ -115,13 +111,14 @@
     background-color: rgb(58, 67, 68);
     color: white;
     padding: 0.5em;
+    text-align: left;
 }
 
 .messageInfoRight {
     position: relative;
     width: 70%;
-    right: 5em;
-    float: right;
+    left: 10em;
+    float: left;
     text-align: right;
 }
 
