@@ -93,13 +93,15 @@ app.get('/welcome', auth, (req, res) => {
     if (!req.session.chatRooms) {
         const userID = app.locals.ObjectID(req.user._id)
         app.locals.chatRoomsCollection.find(
-            {$or: [
-                { hostID:  userID},
-                { adminID: userID},
-                {
-                    userIDs: {$in: [userID]}
-                }
-            ]}).toArray()
+            {
+                $or: [
+                    { hostID: userID },
+                    { adminID: userID },
+                    {
+                        userIDs: { $in: [userID] }
+                    }
+                ]
+            }).toArray()
             .then(chatRooms => {
                 req.session.chatRooms = chatRooms
                 res.render('welcome', { user: req.user, chatRooms: chatRooms })
@@ -143,7 +145,6 @@ app.get('/welcome/:_id', auth, (req, res) => {
             .catch(error => {
                 res.send(`${error}`)
             })
-
     }
 })
 
@@ -169,13 +170,11 @@ app.post('/welcome/:_id', auth, (req, res) => {
 // --------------------------------------------------------------------------
 app.get('/inviteFriend', (req, res) => {
     const friendsQuery = []
-    for(friendID of req.user.friendIDs)
-    {
-        friendsQuery.push({_id: app.locals.ObjectID(friendID)})
+    for (friendID of req.user.friendIDs) {
+        friendsQuery.push({ _id: app.locals.ObjectID(friendID) })
     }
-    if(friendsQuery.length > 0)
-    {
-        app.locals.usersCollection.find({$or: friendsQuery }).toArray()
+    if (friendsQuery.length > 0) {
+        app.locals.usersCollection.find({ $or: friendsQuery }).toArray()
             .then(friends => {
                 res.render('inviteFriend', { user: req.user, friends: friends })
             })
@@ -184,9 +183,8 @@ app.get('/inviteFriend', (req, res) => {
                 res.send(`${error}`)
             })
     }
-    else
-    {
-        res.render('inviteFriend', { user: req.user, friends: []})
+    else {
+        res.render('inviteFriend', { user: req.user, friends: [] })
     }
 })
 
@@ -200,33 +198,31 @@ app.get('/sendInvite/:chatRoomID', (req, res) => {
     chatRoom.adminID = app.locals.ObjectID(chatRoom.adminID)
     chatRoom.hostID = app.locals.ObjectID(chatRoom.hostID)
 
-    if(chatRoom.hostID.equals(friendID) || chatRoom.adminID.equals(friendID) || chatRoom.userIDs.find(_id => app.locals.ObjectID(_id).equals(friendID)))
-    {
+    if (chatRoom.hostID.equals(friendID) || chatRoom.adminID.equals(friendID) || chatRoom.userIDs.find(_id => app.locals.ObjectID(_id).equals(friendID))) {
         req.flash('flash_message', 'That friend is already in your chatroom.')
         res.redirect(`/welcome/${chatRoom._id}`)
     }
-    else
-    {
+    else {
         const invite = new Invite(User.deserialize(req.user), friendID, chatRoom)
         //insert if not exists
         app.locals.invitesCollection.updateOne(
-            {$and: [{'receiver._id': friendID}, {'chatRoom._id': chatRoom._id}]},
+            { $and: [{ 'receiver._id': friendID }, { 'chatRoom._id': chatRoom._id }] },
             {
                 $setOnInsert: {
-                    sender: invite.sender, 
-                    receiverID: invite.receiverID, 
+                    sender: invite.sender,
+                    receiverID: invite.receiverID,
                     chatRoom: invite.chatRoom
                 }
             },
-            {upsert: true}
+            { upsert: true }
         )
-        .then(result => {
-            req.flash('flash_message', 'Invite sent successfully.')
-            res.redirect(`/welcome/${chatRoom._id}`)
-        })
-        .catch(error => {
-            res.send(`${error}`)
-        })
+            .then(result => {
+                req.flash('flash_message', 'Invite sent successfully.')
+                res.redirect(`/welcome/${chatRoom._id}`)
+            })
+            .catch(error => {
+                res.send(`${error}`)
+            })
     }
 })
 
@@ -239,31 +235,29 @@ app.get('/friends/:_id', (req, res) => {
     const chatRoomID = app.locals.ObjectID(req.query.chatRoomID)
     const isAccepted = (req.query.isAccepted == 'true')
 
-    if(isAccepted)
-    {
+    if (isAccepted) {
         app.locals.chatRoomsCollection.updateOne(
-            {_id: chatRoomID},
-            {$push: {userIDs: app.locals.ObjectID(req.user._id)}}
+            { _id: chatRoomID },
+            { $push: { userIDs: app.locals.ObjectID(req.user._id) } }
         )
-        .then(result => {
-            app.locals.invitesCollection.deleteOne({_id: inviteID})
             .then(result => {
-                req.flash('flash_message', 'Invite accepted.')
-                req.session.chatRooms = null
-                res.redirect('/friends')
+                app.locals.invitesCollection.deleteOne({ _id: inviteID })
+                    .then(result => {
+                        req.flash('flash_message', 'Invite accepted.')
+                        req.session.chatRooms = null
+                        res.redirect('/friends')
+                    })
+                    .catch(error => {
+                        //error deleting old invite
+                        res.send(`${error}`)
+                    })
             })
             .catch(error => {
-                //error deleting old invite
+                //error accepting invite
                 res.send(`${error}`)
             })
-        })
-        .catch(error => {
-            //error accepting invite
-            res.send(`${error}`)
-        })
     }
-    else
-    {
+    else {
         //TODO: reject invite
     }
 })
@@ -312,8 +306,8 @@ app.post('/chatroom', auth, (req, res) => {
 // ----------------------------------------------------------------------------
 // Initialize webcam route
 // --------------------------------------------------------------------------
-app.get("/initWebcam", auth, (req,res)=>{
-    res.render('initWebcam', {user: req.user})
+app.get("/initWebcam", auth, (req, res) => {
+    res.render('initWebcam', { user: req.user })
 })
 
 
@@ -330,45 +324,42 @@ app.get("/1", (req, res) => {
 // --------------------------------------------------------------------------
 app.get('/friends', auth, (req, res) => {
     const friendsQuery = []
-    for(friendID of req.user.friendIDs)
-    {
-        friendsQuery.push({_id: app.locals.ObjectID(friendID)})
+    for (friendID of req.user.friendIDs) {
+        friendsQuery.push({ _id: app.locals.ObjectID(friendID) })
     }
-    if(friendsQuery.length > 0)
-    {
-        app.locals.usersCollection.find({$or: friendsQuery }).toArray()
+    if (friendsQuery.length > 0) {
+        app.locals.usersCollection.find({ $or: friendsQuery }).toArray()
             .then(friends => {
-                app.locals.invitesCollection.find({receiverID: app.locals.ObjectID(req.user._id)}).toArray()
-                .then(invites => {
-                    res.render(
-                        'friends', 
-                        { 
-                            user: req.user, 
-                            friends: friends, 
-                            invites: invites,
-                            flash_message: req.flash('flash_message') 
-                        }
-                    )
-                })
-                .catch(error => {
-                    //error finding invites
-                    res.send(`${error}`)
-                })
+                app.locals.invitesCollection.find({ receiverID: app.locals.ObjectID(req.user._id) }).toArray()
+                    .then(invites => {
+                        res.render(
+                            'friends',
+                            {
+                                user: req.user,
+                                friends: friends,
+                                invites: invites,
+                                flash_message: req.flash('flash_message')
+                            }
+                        )
+                    })
+                    .catch(error => {
+                        //error finding invites
+                        res.send(`${error}`)
+                    })
             })
             .catch(error => {
                 //error finding friends
                 res.send(`${error}`)
             })
     }
-    else
-    {
+    else {
         res.render(
-            'friends', 
-            { 
-                user: req.user, 
-                friends: [], 
+            'friends',
+            {
+                user: req.user,
+                friends: [],
                 invites: [],
-                flash_message: req.flash('flash_message') 
+                flash_message: req.flash('flash_message')
             }
         )
     }
@@ -380,76 +371,73 @@ app.get('/friends', auth, (req, res) => {
 // --------------------------------------------------------------------------
 app.post('/friends', (req, res) => {
     const friendName = req.body.friendName
-    if(friendName == req.user.username)
-    {
+    if (friendName == req.user.username) {
         req.flash('flash_message', 'Wow, you really are alone, huh?')
         return res.redirect('/friends')
     }
     app.locals.usersCollection.findOne({ username: friendName })
         .then(friend => {
-            if (friend) 
-            {
+            if (friend) {
                 const userID = app.locals.ObjectID(req.user._id)
                 //.equals must be used when comparing mongodb ObjectIds
-                if(friend.friendIDs.find(_id => _id.equals(userID)))
-                {
+                if (friend.friendIDs.find(_id => _id.equals(userID))) {
                     //don't send request if already friends
                     req.flash('flash_message', `${friend.username} is already your friend!`)
                     return res.redirect('/friends')
                 }
-                else
-                {
+                else {
                     //make sure request does not exist from either user or friend
                     app.locals.requestsCollection.find({
                         $or: [
-                            { $and: [
-                                { 'sender._id': userID},
-                                { 'receiver.username': friendName }
-                            ] },
-                            { $and: [
-                                { 'sender.username': friendName },
-                                { 'receiver._id': userID} 
-                            ] }
+                            {
+                                $and: [
+                                    { 'sender._id': userID },
+                                    { 'receiver.username': friendName }
+                                ]
+                            },
+                            {
+                                $and: [
+                                    { 'sender.username': friendName },
+                                    { 'receiver._id': userID }
+                                ]
+                            }
                         ]
                     }).toArray()
-                    .then(requests => {
-                        if(requests.length == 0)
-                        {
-                            //only insert if request does not exist
-                            app.locals.requestsCollection.insertOne(
-                                new Request(sender = User.deserialize(req.user), receiver = User.deserialize(friend))
-                            )
-                            .then(result => {
-                                req.flash('flash_message', `Friend request sent to ${friendName}`)
+                        .then(requests => {
+                            if (requests.length == 0) {
+                                //only insert if request does not exist
+                                app.locals.requestsCollection.insertOne(
+                                    new Request(sender = User.deserialize(req.user), receiver = User.deserialize(friend))
+                                )
+                                    .then(result => {
+                                        req.flash('flash_message', `Friend request sent to ${friendName}`)
+                                        res.redirect('/friends')
+                                    })
+                                    .catch(error => {
+                                        //error sending request
+                                        res.send(`${error}`)
+                                    })
+                            }
+                            else {
+                                //friend request already exists
+                                req.flash('flash_message', `That friend request is already pending.`)
                                 res.redirect('/friends')
-                            })
-                            .catch(error => {
-                                //error sending request
-                                res.send(`${error}`)
-                            })
-                        }
-                        else
-                        {
-                            //friend request already exists
-                            req.flash('flash_message', `That friend request is already pending.`)
-                            res.redirect('/friends')
-                        }
-                    })
-                    .catch(error => {
-                        //finding requests error
-                        res.send(`${error}`)
-                    })
+                            }
+                        })
+                        .catch(error => {
+                            //finding requests error
+                            res.send(`${error}`)
+                        })
                 }
-            } 
-            else 
-            {
+            }
+            else {
                 req.flash('flash_message', 'No one with that username was found.')
                 res.redirect('/friends')
             }
-    })
-    .catch(error => {
-        res.send(`${error}`)
-    })
+        })
+        .catch(error => {
+            res.send(`${error}`)
+        })
 })
 
 
@@ -458,15 +446,13 @@ app.post('/friends', (req, res) => {
 // Requests route
 // --------------------------------------------------------------------------
 app.get('/requests', auth, (req, res) => {
-    app.locals.requestsCollection.find({'receiver._id': app.locals.ObjectID(req.user._id)}).toArray()
+    app.locals.requestsCollection.find({ 'receiver._id': app.locals.ObjectID(req.user._id) }).toArray()
         .then(requests => {
-            if(requests.length > 0)
-            {
+            if (requests.length > 0) {
                 console.log(requests)
                 res.render('requests', { requests: requests })
             }
-            else
-            {
+            else {
                 res.render('requests', { requests: [] })
             }
         })
@@ -484,18 +470,17 @@ app.get('/requests/:_id', auth, (req, res) => {
     const userID = app.locals.ObjectID(req.user._id)
     const isAccepted = (req.query.isAccepted == 'true')
 
-    if(isAccepted)
-    {
+    if (isAccepted) {
         const bulkAccept = app.locals.usersCollection.initializeUnorderedBulkOp();
         //find user and add sender as friend
         //$push is used to append to arrays in mongodb
-        bulkAccept.find({_id: userID}).updateOne({$push: {friendIDs: senderID}})
+        bulkAccept.find({ _id: userID }).updateOne({ $push: { friendIDs: senderID } })
         //find friend and add user as friend
-        bulkAccept.find({_id: senderID}).updateOne({$push: {friendIDs: userID}})
+        bulkAccept.find({ _id: senderID }).updateOne({ $push: { friendIDs: userID } })
         bulkAccept.execute()
             .then(result => {
                 //remove request
-                app.locals.requestsCollection.deleteOne({_id: requestID})
+                app.locals.requestsCollection.deleteOne({ _id: requestID })
                     .then(result => {
                         res.redirect('/requests')
                     })
@@ -509,8 +494,7 @@ app.get('/requests/:_id', auth, (req, res) => {
                 res.send(`${error}`)
             })
     }
-    else
-    {
+    else {
         //TODO: reject request
     }
 })
@@ -529,7 +513,7 @@ app.get('/profile', auth, (req, res) => {
 // --------------------------------------------------------------------------
 const passwordcrypto = require('./passwordcrypto')
 
-app.post('/profile', auth,(req, res) => {
+app.post('/profile', auth, (req, res) => {
     const user = req.user;
     const username = req.body.username;
     const newPassword = req.body.password;
@@ -551,6 +535,42 @@ app.post('/profile', auth,(req, res) => {
         })
 })
 
+// ----------------------------------------------------------------------------
+// Delete myself  post route
+// --------------------------------------------------------------------------
+app.post('/deleteMyself', auth, (req, res) => {
+    const _id = req.body._id
+
+    const query = { _id: app.locals.ObjectID(_id) }
+    const cquery = { hostID: app.locals.ObjectID(_id) }
+    const rquery = { 'sender._id': app.locals.ObjectID(_id) }
+    const iquery = { 'sender._id': app.locals.ObjectID(_id) }
+    app.locals.chatRoomsCollection.deleteMany(cquery)
+        .then(result => {
+            app.locals.requestsCollection.deleteMany(rquery)
+                .then(result => {
+                    app.locals.invitesCollection.deleteMany(iquery)
+                        .then(result => {
+                            app.locals.usersCollection.deleteOne(query)
+                                .then(result => {
+                                    req.logOut()
+                                    res.redirect('/')
+                                })
+                                .catch(error => {
+                                    console.log("Error deleting account")
+                                })
+                        })
+                        .catch(error => { 
+                            console.log("Error deleting invite")
+                        })
+                })
+                .catch(error => { console.log("Error deleting request")
+            })
+        })
+        .catch(error => {
+            console.log("Error deleting chatroom")
+        })
+})
 
 // ----------------------------------------------------------------------------
 // Updating images route
@@ -692,6 +712,7 @@ app.post('/contactus', (req, res) => {
 // --------------------------------------------------------------------------
 app.get('/logout', (req, res) => {
     req.session.destroy(error => {
+        req.logOut()
         res.redirect('/')
     })
 })

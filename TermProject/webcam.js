@@ -40,6 +40,13 @@ function gotMedia (stream) {
     video.srcObject=stream;
     video.play()
   })
+
+  peer1.on('stream', function (stream) {
+    // got remote video stream, now let's show it in a video tag
+    var video = document.querySelector('video')
+    video.srcObject=stream;
+    video.play()
+  })
 }
 })
  

@@ -11,19 +11,19 @@
 </head>
 
 <body onload="setupMessages();">
-   <% include ./partials/nav %>
+    <% include ./partials/nav %>
 
-   <% if(typeof(flash_message) !== 'undefined'){%>
-   <% if(flash_message.length >0) { %>
+    <% if(typeof(flash_message) !== 'undefined'){%>
+    <% if(flash_message.length >0) { %>
     <div class="alert alert-success" role="alert">
         <%= flash_message %>
     </div>
     <% } %>
     <%}%>
 
-<!--********************************************************************************************************--> 
-<!--*       List of Chat Rooms                                                                             *-->
-<!--********************************************************************************************************--> 
+    <!--********************************************************************************************************-->
+    <!--*       List of Chat Rooms                                                                             *-->
+    <!--********************************************************************************************************-->
     <div class="container chatrooms">
         <div class="row">
             <div class="col-2" id="chatList">
@@ -34,8 +34,8 @@
                         <li class="roomCol">
                             <button class="switch">
                                 <a href="/welcome/<%=chatRoom._id%>">
-                                    <img class="circlePhoto img-responsive" src="<%= chatRoom.photoURL %>"
-                                        alt="<%=chatRoom.name%>" height="50" width="50">
+                                    <img class="circlePhoto img-responsive" src="<%= chatRoom.photoURL %>" alt="<%=chatRoom.name%>"
+                                        height="50" width="50">
                                 </a>
                             </button>
                         </li>
@@ -45,50 +45,75 @@
                     <a id="addChatroom" href="/chatroom/"><i class="fas fa-plus-circle"></i></a>
                 </div>
             </div>
-            <div class="col-9" id="chatLayout" <%if(typeof(openChatRoom) === 'undefined'){%> hidden <%}%>>
+            <div class="col-9" id="chatLayout" <%if(typeof(openChatRoom)==='undefined' ){%> hidden
+                <%}%>>
                 <div id="messagesContainer">
-<!--********************************************************************************************************--> 
-<!--*       Message Contents                                                                               *-->
-<!--********************************************************************************************************-->                   
-                <%if(typeof(openChatRoom) !== 'undefined'){%> <%if(typeof(messages) !== 'undefined'){
-                    for(const message of messages){%> 
-                        <div class="message">
-                            <div class="userInfo">
-                                <img src="/public/images/<%=message.userPhotoURL%>" width="30" height="30"
-                                    class="circlePhoto">
-                                    <small><%=message.username%></small>
-                            </div>
-                            <div class="messageInfo">
-                                <small><%=utility.getDateTime(message.timestamp)%></small>
-                                <p><%=message.text%></p>
-                            </div>
+                    <!--********************************************************************************************************-->
+                    <!--*       Message Contents                                                                               *-->
+                    <!--********************************************************************************************************-->
+                    <%if(typeof(openChatRoom) !== 'undefined'){%>
+                    <%if(typeof(messages) !== 'undefined'){
+                    for(const message of messages){%>
+                    <% if (message.username == user.username) { %>
+                    <div class="message">
+                        <div class="userInfo">
+
+                            <img src="/public/images/<%=message.userPhotoURL%>" width="30" height="30" class="circlePhoto">
+                            <small>
+                                <%=message.username%></small>
                         </div>
-                    <%}%>
-                
-        </div>
-        <form method="POST" id="messageSender" action='/welcome/<%=openChatRoom._id%>'>
-            <div class="chatroomInputs">
-                <!-- this div will have input fields fixed to the bottom -->
-                <textarea id="messageBox" name="message" rows="2" placeholder="Comment"
-                    onkeypress="return checkKey(event);" autofocus></textarea>
-                <div id="chatOptionsContainer">
-                    <div class="btn-group dropup">
-                        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-                        </button>
-                        <div class="dropdown-menu">
-                            <!-- Dropdown menu links -->
-                            <a class="dropdown-item" onclick="inviteFriend('<%= openChatRoom._id %>')">Invite Friend</a>
-                            <a class="dropdown-item">Voice Call</a>
-                            <a class="dropdown-item" onclick="WebcamPage()">Video Call</a>
-                            <a class="dropdown-item" >File</a>
+                        <div class="messageInfo">
+                            <small>
+                                <%=utility.getDateTime(message.timestamp)%></small>
+                            <p>
+                                <%=message.text%>
+                            </p>
                         </div>
                     </div>
+                    <% } else { %>
+                    <div class="message">
+                        <div class="userInfoRight">
+
+                            <img src="/public/images/<%=message.userPhotoURL%>" width="30" height="30" class="circlePhoto">
+                            <a href="#"> <small>
+                                    <%=message.username%></small> </a>
+                        </div>
+                        <div class="messageInfoRight">
+                            <small>
+                                <%=utility.getDateTime(message.timestamp)%></small>
+                            <p>
+                                <%=message.text%>
+                            </p>
+                        </div>
+                    </div>
+                    <% } %>
+                    <%}%>
+
                 </div>
-            </div>
-        </form>
-            <%}%>
-        <%}%>
+                <form method="POST" id="messageSender" action='/welcome/<%=openChatRoom._id%>'>
+                    <div class="chatroomInputs">
+                        <!-- this div will have input fields fixed to the bottom -->
+                        <textarea id="messageBox" name="message" rows="2" placeholder="Comment" onkeypress="return checkKey(event);"
+                            autofocus></textarea>
+                        <div id="chatOptionsContainer">
+                            <div class="btn-group dropup">
+                                <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                                </button>
+                                <div class="dropdown-menu">
+                                    <!-- Dropdown menu links -->
+                                    <a class="dropdown-item" onclick="inviteFriend('<%= openChatRoom._id %>')">Invite
+                                        Friend</a>
+                                    <a class="dropdown-item">Voice Call</a>
+                                    <a class="dropdown-item" id="videoCallID" onclick="WebcamPage()">Video Call</a>
+                                    <a class="dropdown-item">File</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <%}%>
+                <%}%>
             </div>
         </div>
     </div>
@@ -109,26 +134,23 @@
                 allowNormalKeyFunction = false;
                 let messageBox = document.getElementById('messageBox');
                 messageBox.value = messageBox.value.trim()
-                if(messageBox.value.length > 0)
+                if (messageBox.value.length > 0)
                     document.getElementById('messageSender').submit();
             }
             return allowNormalKeyFunction;
         }
 
-        function WebcamPage(){
+        function WebcamPage() {
             window.open("/initWebcam", "Init Webcam", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=500,height=600");
         }
 
-        function inviteFriend(chatRoomID)
-        {
+        function inviteFriend(chatRoomID) {
             let friendsWindow = open('/inviteFriend', 'Invite a Friend!', 'width=300,height=300')
             friendsWindow.focus();
             window.addEventListener("message", event => {
-                if(event.origin == 'http://localhost:3000')
-                {
+                if (event.origin == 'http://localhost:3000') {
                     let friendID = event.data;
-                    if(friendID.startsWith('_id:'))
-                    {
+                    if (friendID.startsWith('_id:')) {
                         friendID = friendID.substring(4);
                         //redirect
                         window.location.replace(`/sendInvite/${chatRoomID}?friendID=${friendID}`);

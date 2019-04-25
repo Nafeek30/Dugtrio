@@ -324,9 +324,14 @@
     <div class="text-center">
         <button type="submit" id="update" name="update" class="btn btn-outline-info">Update Account</button>
         <a href="welcome" class="btn btn-outline-secondary">Cancel</a> <br> <br>
-        <button type="submit" id="delete" name="delete" class="btn btn-danger">Delete Account</button>
     </div>
     </form>
+    <div class="text-center">
+    <form action="deleteMyself" method="POST">
+        <input type="hidden" name="_id" value="<%= user._id %>">
+            <button type="submit" id="delete" name="delete" class="btn btn-danger">Delete Account</button>
+    </form>
+</div>
     </div>
 
     <script>
