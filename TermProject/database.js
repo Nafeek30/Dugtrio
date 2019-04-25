@@ -9,7 +9,7 @@ const dbHost = 'localhost'
 const dbPort = 27017
 const collectionName = 'users'
 
-const dbUrl = `mongodb://${username}:${password}@${dbHost}:${dbPort}?authSource=${dbName}&replicaSet=rs0`
+const dbUrl = `mongodb://${username}:${password}@${dbHost}:${dbPort}?authSource=${dbName}`
 
 let server
 let dbclient

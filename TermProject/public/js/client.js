@@ -1,5 +1,12 @@
 const socket = io.connect('http://localhost:3000');
 
+function getDateTime(timestamp)
+{
+    let dateTime = new Date(timestamp).toLocaleString();
+    const secondsIndex = dateTime.lastIndexOf(':');
+    return dateTime.slice(0, -(dateTime.length - secondsIndex)) + dateTime.substring(secondsIndex + 3, dateTime.length);
+}
+
 /* Message Model Reference:
 constructor(chatRoomID, userID, username, userPhotoURL)
     {
@@ -43,11 +50,33 @@ function checkKey(event) {
     return allowNormalKeyFunction;
 }
 
+
 socket.on('chat', message => {
     let chatRoomID = window.location.href;
     chatRoomID = chatRoomID.slice(chatRoomID.lastIndexOf('/') + 1);
     if(message.chatRoomID == chatRoomID)
     {
-        alert(message.text);
+        const htmlMessage = `
+        <div class="message">
+            <div class="userInfoRight">
+                <img src="/public/images/${message.userPhotoURL}" width="30" height="30" class="circlePhoto">
+                <a href="#"> 
+                    <small>
+                        ${message.username}
+                    </small> 
+                </a>
+            </div>
+            <div class="messageInfoRight">
+                <small>
+                    ${getDateTime(message.timestamp)}
+                </small>
+                <p>
+                    ${message.text}
+                </p>
+            </div>
+        </div>
+        `
+        document.getElementById('messagesContainer').insertAdjacentHTML('beforeend', htmlMessage);
+        setupMessages();
     }
 });

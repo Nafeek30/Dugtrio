@@ -64,7 +64,14 @@ app.use(function (req, res, next) {
 // Login route
 // --------------------------------------------------------------------------
 app.get('/login', (req, res) => {
-    res.render('login', { flash_message: req.flash('flash_message') })
+    if(req.user)
+    {
+        res.redirect('/welcome')
+    }
+    else
+    {
+        res.render('login', { flash_message: req.flash('flash_message') })
+    }
 })
 
 // ----------------------------------------------------------------------------
@@ -79,7 +86,14 @@ app.post('/login', passConfig.passport.authenticate(
 // Signup route
 // --------------------------------------------------------------------------
 app.get('/signup', (req, res) => {
-    res.render('signup', { flash_message: req.flash('flash_message') })
+    if(req.user)
+    {
+        res.redirect('/welcome')
+    }
+    else
+    {
+        res.render('signup', { flash_message: req.flash('flash_message') })
+    }
 })
 
 // ----------------------------------------------------------------------------
@@ -94,7 +108,14 @@ app.post('/signup', passConfig.passport.authenticate(
 // Index route
 // --------------------------------------------------------------------------
 app.get('/', (req, res) => {
-    res.render('home', { flash_message: req.flash('flash_message') })
+    if(req.user)
+    {
+        res.redirect('/welcome')
+    }
+    else
+    {
+        res.render('home', { flash_message: req.flash('flash_message') })
+    }
 })
 
 
@@ -662,7 +683,14 @@ app.post('/uploadImage', auth, (req, res) => {
 // Contacts route
 // --------------------------------------------------------------------------
 app.get('/contactus', (req, res) => {
-    res.render('contactus')
+    if(req.user)
+    {
+        res.redirect('/welcome')
+    }
+    else
+    {
+        res.render('contactus')
+    }
 })
 
 // ----------------------------------------------------------------------------
