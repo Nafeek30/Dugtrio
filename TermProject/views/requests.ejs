@@ -12,22 +12,28 @@
 
 <body>
     <% include ./partials/nav %>
-    
+    <br>
     <div class="container">
-        <ul class="list-group">
-            <%for(const request of requests) { %>
-            <li class="list-group-item">
-                <img src="/public/images/<%= request.sender.photoURL %>" width="30" height="30"
-                    class="circlePhoto" alt="<%= request.sender.username %>'s profile photo">
-                <strong><%= request.sender.username %> </strong>
-                <a role="button" class="btn btn-outline-success circlePhoto" 
-                    href="/requests/<%= request._id %>?senderID=<%= request.sender._id %>&isAccepted=true">
-                    +
-                </a>
-            </li>
-            <% } %>
+        <div class="jumbotron">
+            <h3 class="text-center">Friend Request</h3>
+            <ul class="list-group">
+                <%for(const request of requests) { %>
+                <li class="list-group-item">
+                    <img src="/public/images/<%= request.sender.photoURL %>" width="30" height="30" class="circlePhoto"
+                        alt="<%= request.sender.username %>'s profile photo">
+                    <strong>
+                        <%= request.sender.username %> </strong>
+                    <a role="button" class="btn btn-outline-success circlePhoto" href="/requests/<%= request._id %>?senderID=<%= request.sender._id %>&isAccepted=true">
+                        +
+                    </a>
+                    <a role="button" class="btn btn-outline-danger circlePhoto" href="/requests/<%= request._id %>?senderID=<%= request.sender._id %>&isAccepted=false">
+                        -
+                    </a>
+                </li>
+                <% } %>
             </ul>
-    </div>        
+        </div>
+    </div>
     <%  include ./partials/scripts %>
 </body>
 

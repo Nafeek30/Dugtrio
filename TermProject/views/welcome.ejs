@@ -69,6 +69,15 @@
                                 <%=message.text%>
                             </p>
                         </div>
+
+                        <div class="dropdown">
+                            <input class="dropbtn" type="image" src="../public/homeImages/editButton.png" alt="Submit"
+                                width="30" height="30">
+                            <div class="dropdown-content">
+                                <a href="#">Edit</a>
+                                <a href="#">Delete</a>
+                            </div>
+                        </div>
                     </div>
                     <% } else { %>
                     <div class="message">
@@ -131,7 +140,7 @@
             }
         }
 
-        function WebcamPage(){
+        function WebcamPage() {
             window.open("/initWebcam", "Init Webcam", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=500,height=600");
         }
 

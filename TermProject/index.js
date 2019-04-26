@@ -529,7 +529,14 @@ app.get('/requests/:_id', auth, (req, res) => {
             })
     }
     else {
-        //TODO: reject request
+        //reject request
+        app.locals.requestsCollection.deleteOne({_id: requestID})
+            .then(result=>{
+                res.redirect("/requests")
+            })
+            .catch(error=>{
+                console.log("Can't reject this user")
+            })
     }
 })
 

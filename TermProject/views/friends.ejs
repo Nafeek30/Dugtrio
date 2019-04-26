@@ -22,8 +22,7 @@
         <form action="/friends" method="POST">
             <div class="form-row">
                 <div class="col">
-                    <input id="friendName" name="friendName" type="text" class="form-control"
-                        placeholder="Add friend by name">
+                    <input id="friendName" name="friendName" type="text" class="form-control" placeholder="Add friend by name">
                 </div>
                 <button id="sendRequest" type="submit" class="btn btn-primary">Submit</button>
             </div>
@@ -36,9 +35,12 @@
             <ul class="list-group">
                 <%for(const friend of friends) { %>
                 <li class="list-group-item">
-                    <img src="/public/images/<%= friend.photoURL %>" width="30" height="30" class="circlePhoto"
-                        alt="<%= friend.username %>'s profile photo">
-                    <strong><%= friend.username %> </strong>
+                    <img src="/public/images/<%= friend.photoURL %>" width="30" height="30" class="circlePhoto" alt="<%= friend.username %>'s profile photo">
+                    <strong>
+                        <%= friend.username %> </strong>
+                    <a role="button" class="btn btn-outline-danger circlePhoto" href="#">
+                        -
+                    </a>
                 </li>
                 <% } %>
             </ul>
@@ -53,12 +55,13 @@
                 <li class="list-group-item">
                     <img src="/public/images/<%= invite.sender.photoURL %>" width="30" height="30" class="circlePhoto"
                         alt="<%= invite.sender.username %>'s profile photo">
-                    <strong><%= invite.sender.username %> </strong> invited you to join
+                    <strong>
+                        <%= invite.sender.username %> </strong> invited you to join
                     <img src="/public/images/<%= invite.chatRoom.photoURL %>" width="30" height="30" class="circlePhoto"
                         alt="<%= invite.chatRoom.name %>'s photo">
-                    <strong><%= invite.sender.chatRoomName %> </strong>
-                    <a role="button" class="btn btn-outline-success circlePhoto"
-                        href="/friends/<%= invite._id %>?chatRoomID=<%= invite.chatRoom._id %>&isAccepted=true">
+                    <strong>
+                        <%= invite.sender.chatRoomName %> </strong>
+                    <a role="button" class="btn btn-outline-success circlePhoto" href="/friends/<%= invite._id %>?chatRoomID=<%= invite.chatRoom._id %>&isAccepted=true">
                         +
                     </a>
                 </li>
