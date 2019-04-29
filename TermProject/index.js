@@ -577,7 +577,7 @@ app.post('/profile', auth, (req, res) => {
 })
 
 // ----------------------------------------------------------------------------
-// Delete myself  post route
+// Delete profile post route
 // --------------------------------------------------------------------------
 app.post('/deleteMyself', auth, (req, res) => {
     const _id = req.body._id
@@ -611,6 +611,37 @@ app.post('/deleteMyself', auth, (req, res) => {
         .catch(error => {
             console.log("Error deleting chatroom")
         })
+})
+
+// ----------------------------------------------------------------------------
+// Delete chatroom post route
+// --------------------------------------------------------------------------
+app.post('/deleteRoom', auth, (req, res) => {
+    const _id = req.body._id
+    const query = {_id: app.locals.ObjectID(_id) }
+    const mquery = {chatRoomID: app.locals.ObjectID(_id)}
+
+    app.locals.messagesCollection.deleteMany(mquery)
+        .then(result => {
+            app.locals.chatRoomsCollection.deleteOne(query)
+                .then(result => {
+                    req.logout()
+                    res.redirect('/')
+                })
+                .catch(error => {
+                    console.log('failed to delete chatroom')
+                })
+        })
+        .catch(error => {
+            console.log('Failed to delete messages')
+        })
+})
+
+// ----------------------------------------------------------------------------
+// Delete message post route
+// --------------------------------------------------------------------------
+app.post('/deleteMessage', auth, (req, res) => {
+    res.send('nothing')
 })
 
 // ----------------------------------------------------------------------------
@@ -727,8 +758,12 @@ app.post('/uploadImage', auth, (req, res) => {
     })
 })
 
-
-
+// ----------------------------------------------------------------------------
+// upload file to chatroom 
+// --------------------------------------------------------------------------
+app.post('/uploadFile', auth, (req, res) => {
+    res.send('uploaded')
+})
 
 // ----------------------------------------------------------------------------
 // Contacts route
