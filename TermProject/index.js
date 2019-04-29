@@ -641,7 +641,16 @@ app.post('/deleteRoom', auth, (req, res) => {
 // Delete message post route
 // --------------------------------------------------------------------------
 app.post('/deleteMessage', auth, (req, res) => {
-    res.send('nothing')
+    const _id = req.body._id
+    const query = {_id: app.locals.ObjectID(_id) }
+
+    app.locals.messagesCollection.deleteOne(query)
+        .then(result => {
+            res.redirect('/welcome')
+        })
+        .catch(error => {
+            console.log('message wasn not deleted')
+        })
 })
 
 // ----------------------------------------------------------------------------

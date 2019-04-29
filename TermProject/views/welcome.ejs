@@ -99,7 +99,7 @@
                                         class="btn btn-info">Edit</button>
                                     </form>
                                 <form action="/deleteMessage" method="POST">
-                                    <input type="hidden" name="_id" value="">
+                                    <input type="hidden" name="_id" value="<%= message._id %>">
                                     <button 
                                     type="submit" id="deleteChatroom" name="deleteChatroom" 
                                     class="btn btn-danger">Delete</button>
