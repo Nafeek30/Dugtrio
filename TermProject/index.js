@@ -661,6 +661,31 @@ app.post('/deleteRoom', auth, (req, res) => {
 // ----------------------------------------------------------------------------
 // Edit message GET route
 // --------------------------------------------------------------------------
+app.post('/deleteFriend', auth, (req, res) => {
+    const friendID = req.body._id
+    const myID = req.user._id
+    const mquery = {_id: app.locals.ObjectID(friendID)}
+    const fquery = {_id: app.locals.ObjectID(myID)}
+
+    app.locals.usersCollection.updateOne({_id:myID}, { $pull: {'friendIDs': {friendID}}})
+        .then(result => {
+            app.locals.usersCollection.updateOne({_id:friendID}, { $pull: {'friendIDs': {myID}}})
+                .then(result => {
+                    res.redirect('/friends')
+                })
+                .catch(error => {
+                    console.log('cannot delete friend')
+                })
+        })
+        .catch(error => {
+            console.log('cannot delete friennd from his list')
+        })
+})
+
+
+// ----------------------------------------------------------------------------
+// Edit message GET route
+// --------------------------------------------------------------------------
 app.get('/editMessage/:id', auth, (req, res) => {
     const _id = req.params.id
     const query = {_id: app.locals.ObjectID(_id)}

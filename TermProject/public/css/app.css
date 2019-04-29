@@ -182,6 +182,10 @@
     padding-top: 20px;
 }
 
+#deleteFriend {
+    float: right;
+}
+
 /*
     Requests page
 */

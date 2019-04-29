@@ -35,12 +35,19 @@
             <ul class="list-group">
                 <%for(const friend of friends) { %>
                 <li class="list-group-item">
+                    <div>
                     <img src="/public/images/<%= friend.photoURL %>" width="30" height="30" class="circlePhoto" alt="<%= friend.username %>'s profile photo">
                     <strong>
                         <%= friend.username %> </strong>
-                    <a role="button" class="btn btn-outline-danger circlePhoto" href="#">
-                        -
-                    </a>
+                    <div id="deleteFriend">
+                            <form action="/deleteFriend" method="POST">
+                                <input type="hidden" name="_id" value="<%= friend._id %>">
+                                <button 
+                                type="submit" id="deletefriend" name="deletefriend" 
+                                class="btn btn-outline-danger circlePhoto">Delete</button>
+                            </form>
+                        </div>
+                        </div>
                 </li>
                 <% } %>
             </ul>
