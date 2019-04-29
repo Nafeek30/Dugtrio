@@ -22,8 +22,8 @@ const fs = require('fs')
 const Peer = require("simple-peer")
 const wrtc = require('wrtc')
 
-const MAX_FILESIZE = 1020 * 1020 * 1
-const fileTypes = /jpeg|jpg|png/;
+const MAX_FILESIZE = 1024 * 1024 * 1
+const imageTypes = /jpeg|jpg|png/;
 
 app.use(express.urlencoded({ extended: true }))
 app.use(session({
@@ -811,6 +811,24 @@ const imageUpload = multer({
 }).single('imageButton')
 
 
+// ----------------------------------------------------------------------------
+// Using multer to upload files to chat
+// --------------------------------------------------------------------------
+const chatStorageOptions = multer.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, './public/chatFiles')
+    },
+    filename: (req, file, callback) => {
+        const rand = Math.random().toFixed(4).toString()
+        const originalName = rand + file.originalname.toString()
+        callback(null, originalName)
+    }
+})
+
+const chatFileUpload = multer({
+    storage: chatStorageOptions,
+    limits: { fileSize: MAX_FILESIZE }
+}).single('fileUpload')
 
 // ----------------------------------------------------------------------------
 // Upload image post route to upload the image
