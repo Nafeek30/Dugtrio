@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --config webcam.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js:bundle.js"
+    "start": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -32,12 +32,6 @@
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "simple-peer": "^9.3.0",
-    "socket.io": "^2.2.0",
-    "webpack": "^4.30.0",
-    "webrtc": "^1.14.1",
-    "wrtc": "^0.3.7"
-  },
-  "devDependencies": {
-    "webpack-cli": "^3.3.0"
+    "socket.io": "^2.2.0"
   }
 }

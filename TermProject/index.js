@@ -19,9 +19,6 @@ const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
 
-const Peer = require("simple-peer")
-const wrtc = require('wrtc')
-
 const MAX_FILESIZE = 1020 * 1020 * 1
 const fileTypes = /jpeg|jpg|png/;
 
@@ -336,43 +333,6 @@ app.post('/chatroom', auth, (req, res) => {
             res.send(`${error}`)
         })
 })
-
-// ----------------------------------------------------------------------------
-// Initialize webcam route
-// --------------------------------------------------------------------------
-app.get("/initWebcam", auth, (req, res) => {
-    res.render('initWebcam', { user: req.user })
-})
-
-// ----------------------------------------------------------------------------
-// Initialize audio route
-// --------------------------------------------------------------------------
-app.get('/initAudiocam', auth, (req, res) => {
-    res.render('initAudiocam', {user: req.user})
-})
-
-// ----------------------------------------------------------------------------
-// render webcam
-// --------------------------------------------------------------------------
-app.get("/1", (req, res) => {
-    res.render('webcam')
-})
-
-// ----------------------------------------------------------------------------
-// Initialize Audio route
-// --------------------------------------------------------------------------
-app.get("/initAudio", auth, (req, res) => {
-    res.render('initAudio', { user: req.user })
-})
-
-
-// ----------------------------------------------------------------------------
-// render Audio
-// --------------------------------------------------------------------------
-app.get("/1", (req, res) => {
-    res.render('audio')
-})
-
 
 // ----------------------------------------------------------------------------
 // Friends route
