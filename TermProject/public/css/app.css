@@ -45,6 +45,10 @@
     font-size: 2em;
 }
 
+#deleteroom {
+    padding-top: 5px;
+}
+
 #chatList {
     position: relative;
     border: 3px solid skyblue;
@@ -191,6 +195,10 @@
     float: left;
   }
   
+.dropbutton {
+    float: left;
+}
+
   .dropdown {
     position: relative;
     float: left;

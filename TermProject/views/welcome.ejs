@@ -32,16 +32,34 @@
                     <ul class="listRooms">
                         <% for(const chatRoom of chatRooms) { %>
                         <li class="roomCol">
-                            <button class="switch">
-                                <a href="/welcome/<%=chatRoom._id%>">
-                                    <img class="circlePhoto img-responsive" src="<%= chatRoom.photoURL %>" alt="<%=chatRoom.name%>"
-                                        height="50" width="50">
-                                </a>
-                            </button>
+                        <div>
+                            <div>
+                                <button class="switch">
+                                    <a href="/welcome/<%=chatRoom._id%>">
+                                        <img class="circlePhoto img-responsive" src="<%= chatRoom.photoURL %>" alt="<%=chatRoom.name%>"
+                                            height="50" width="50">
+                                    </a>
+                                </button>
+                            </div>
+                                <!--********************************************************************************************************-->
+                                <!--*       Delete Chat Rooms                                                                             *-->
+                                <!--*****************************************************************************-->
+                            <div id="deleteroom">
+                                <form action="/deleteRoom" method="POST">
+                                    <input type="hidden" name="_id" value="<%= chatRoom._id %>">
+                                    <button 
+                                    type="submit" id="deleteChatroom" name="deleteChatroom" 
+                                    class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
                         </li>
                         <% } %>
                     </ul>
                     <% } %>
+                    <!--********************************************************************************************************-->
+                    <!--*       ADD CHATROOM                                                                             *-->
+                    <!--********************************************************************************************************-->
                     <a id="addChatroom" href="/chatroom/"><i class="fas fa-plus-circle"></i></a>
                 </div>
             </div>
@@ -74,8 +92,18 @@
                             <input class="dropbtn" type="image" src="../public/homeImages/editButton.png" alt="Submit"
                                 width="30" height="30">
                             <div class="dropdown-content">
-                                <a href="#">Edit</a>
-                                <a href="#">Delete</a>
+                                    <form action="/editMessage" method="POST">
+                                        <input type="hidden" name="_id" value="">
+                                        <button 
+                                        type="submit" id="deleteChatroom" name="deleteChatroom" 
+                                        class="btn btn-info">Edit</button>
+                                    </form>
+                                <form action="/deleteMessage" method="POST">
+                                    <input type="hidden" name="_id" value="<%= message._id %>">
+                                    <button 
+                                    type="submit" id="deleteChatroom" name="deleteChatroom" 
+                                    class="btn btn-danger">Delete</button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -116,7 +144,10 @@
                                         Friend</a>
                                     <a class="dropdown-item" id="audioCallID" onclick="AudioPage()">Voice Call</a>
                                     <a class="dropdown-item" id="videoCallID" onclick="WebcamPage()">Video Call</a>
-                                    <a class="dropdown-item">File</a>
+                                    <form action="/uploadFile" method="POST" enctype="multipart/form-data">
+                                        <input id="imageFile" type="file">
+                                        <button type="submit" class="btn btn-outline-info">Upload</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
