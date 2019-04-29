@@ -22,7 +22,7 @@ p.on('connect', function () {
   console.log('CONNECT')
   p.send('You are connected' + Math.random())
 
-  navigator.getUserMedia({ video: true, audio: true }, gotMedia, function () { })
+  navigator.getUserMedia({ video: false, audio: true }, gotMedia, function () { })
 
   function gotMedia(stream) {
     var peer1 = new Peer({ initiator: true, stream: stream })
@@ -38,9 +38,9 @@ p.on('connect', function () {
 
     peer2.on('stream', function (stream) {
       // got remote video stream, now let's show it in a video tag
-      var video = document.querySelector('video')
-      video.srcObject = stream;
-      video.play()
+      var audio = document.querySelector('audio')
+      audio.srcObject = stream;
+      audio.play()
     })
   }
   
