@@ -44,6 +44,7 @@
                                 <!--********************************************************************************************************-->
                                 <!--*       Delete Chat Rooms                                                                             *-->
                                 <!--*****************************************************************************-->
+                            <!-- <% if(user._id === chatRoom.hostID || user.isAdmin) { %> -->
                             <div id="deleteroom">
                                 <form action="/deleteRoom" method="POST">
                                     <input type="hidden" name="_id" value="<%= chatRoom._id %>">
@@ -52,6 +53,7 @@
                                     class="btn btn-danger">Delete</button>
                                 </form>
                             </div>
+                            <!-- <% } %> -->
                         </div>
                         </li>
                         <% } %>
@@ -92,16 +94,15 @@
                             <input class="dropbtn" type="image" src="../public/homeImages/editButton.png" alt="Submit"
                                 width="30" height="30">
                             <div class="dropdown-content">
-                                    <form action="/editMessage" method="POST">
-                                        <input type="hidden" name="_id" value="">
-                                        <button 
-                                        type="submit" id="deleteChatroom" name="deleteChatroom" 
-                                        class="btn btn-info">Edit</button>
-                                    </form>
+                                <form action="/editMessage/<%= message._id %>" method="GET">
+                                    <input type="hidden" name="_id" value="<%= message._id %>">
+                                    <input type="hidden" name="text" value="<%= message.text %>">
+                                <button id="editButton" name="editButton" type="submit" class="btn btn-info">Edit</button>
+                            </form>
                                 <form action="/deleteMessage" method="POST">
                                     <input type="hidden" name="_id" value="<%= message._id %>">
                                     <button 
-                                    type="submit" id="deleteChatroom" name="deleteChatroom" 
+                                    type="submit" id="deleteMessage" name="deleteMessage" 
                                     class="btn btn-danger">Delete</button>
                                 </form>
                             </div>
@@ -142,7 +143,7 @@
                                     <!-- Dropdown menu links -->
                                     <a class="dropdown-item" onclick="inviteFriend('<%= openChatRoom._id %>')">Invite
                                         Friend</a>
-                                    <a class="dropdown-item">Voice Call</a>
+                                    <a class="dropdown-item" id="audioCallID" onclick="AudioPage()">Voice Call</a>
                                     <a class="dropdown-item" id="videoCallID" onclick="WebcamPage()">Video Call</a>
                                     <form action="/uploadFile" method="POST" enctype="multipart/form-data">
                                         <input id="imageFile" type="file">
@@ -172,6 +173,10 @@
         }
 
         function WebcamPage() {
+            window.open("/initWebcam", "Init Webcam", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=500,height=600");
+        }
+
+        function AudioPage() {
             window.open("/initWebcam", "Init Webcam", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=500,height=600");
         }
 
