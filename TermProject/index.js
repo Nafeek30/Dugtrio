@@ -344,6 +344,12 @@ app.get("/initWebcam", auth, (req, res) => {
     res.render('initWebcam', { user: req.user })
 })
 
+// ----------------------------------------------------------------------------
+// Initialize audio route
+// --------------------------------------------------------------------------
+app.get('/initAudiocam', auth, (req, res) => {
+    res.render('initAudiocam', {user: req.user})
+})
 
 // ----------------------------------------------------------------------------
 // render webcam
@@ -640,8 +646,8 @@ app.post('/deleteRoom', auth, (req, res) => {
         .then(result => {
             app.locals.chatRoomsCollection.deleteOne(query)
                 .then(result => {
-                    req.logout()
-                    res.redirect('/')
+                    req.session.chatRoom = null
+                    res.redirect('/welcome')
                 })
                 .catch(error => {
                     console.log('failed to delete chatroom')
@@ -652,6 +658,61 @@ app.post('/deleteRoom', auth, (req, res) => {
         })
 })
 
+// ----------------------------------------------------------------------------
+// Edit message GET route
+// --------------------------------------------------------------------------
+app.post('/deleteFriend', auth, (req, res) => {
+    const friendID = req.body._id
+    const myID = req.user._id
+    const mquery = {_id: app.locals.ObjectID(friendID)}
+    const fquery = {_id: app.locals.ObjectID(myID)}
+
+    app.locals.usersCollection.updateOne({_id:myID}, { $pull: {'friendIDs': {friendID}}})
+        .then(result => {
+            app.locals.usersCollection.updateOne({_id:friendID}, { $pull: {'friendIDs': {myID}}})
+                .then(result => {
+                    res.redirect('/friends')
+                })
+                .catch(error => {
+                    console.log('cannot delete friend')
+                })
+        })
+        .catch(error => {
+            console.log('cannot delete friennd from his list')
+        })
+})
+
+
+// ----------------------------------------------------------------------------
+// Edit message GET route
+// --------------------------------------------------------------------------
+app.get('/editMessage/:id', auth, (req, res) => {
+    const _id = req.params.id
+    const query = {_id: app.locals.ObjectID(_id)}
+
+    app.locals.messagesCollection.findOne(query)
+        .then(messages => {
+            res.render('editComment', {messages: messages})
+        })
+})
+
+// ----------------------------------------------------------------------------
+// Edit message POST route
+// --------------------------------------------------------------------------
+app.post('/editMessage/:id', auth, (req, res) => {
+    const _id = req.body._id
+    const text = req.body.text
+    const query = {_id: app.locals.ObjectID(_id)}
+    const newValue = {$set: {text}}
+    app.locals.messagesCollection.updateOne(query, newValue)
+        .then(result => {
+            console.log('comment')
+            res.redirect('/welcome')
+        })
+        .catch(error => {
+            console.log(`error updating comment: ${error}`)
+        })
+})
 // ----------------------------------------------------------------------------
 // Delete message post route
 // --------------------------------------------------------------------------
