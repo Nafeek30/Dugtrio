@@ -831,7 +831,6 @@ app.get('/sendFile/:chatRoomID', auth, (req, res) => {
 
 app.post('/sendFile/:chatRoomID', auth, (req, res) => {
     const chatRoomID = req.params.chatRoomID
-    console.log(`ChatID:${chatRoomID}`)
 
     chatFileUpload(req, res, error => {
         if (error) {
@@ -845,6 +844,8 @@ app.post('/sendFile/:chatRoomID', auth, (req, res) => {
 
         const message = new Message(chatRoomID, req.user._id, req.user.username, req.user.photoURL)
         message.fileURL = req.file.filename
+
+        app.locals.io.emit('sendFile', message)
 
         app.locals.messagesCollection.insertOne(message)
             .then(result => {

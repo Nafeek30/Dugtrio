@@ -58,7 +58,7 @@ socket.on('chat', message => {
     {
         const htmlMessage = `
         <div class="message">
-            <div class="userInfoRight">
+            <div class="text-center userInfoRight">
                 <img src="/public/images/${message.userPhotoURL}" width="30" height="30" class="circlePhoto">
                 <a href="#"> 
                     <small>
@@ -76,6 +76,60 @@ socket.on('chat', message => {
             </div>
         </div>
         `
+        document.getElementById('messagesContainer').insertAdjacentHTML('beforeend', htmlMessage);
+        setupMessages();
+    }
+});
+
+socket.on('sendFile', message => {
+    let chatRoomID = window.location.href;
+    chatRoomID = chatRoomID.slice(chatRoomID.lastIndexOf('/') + 1);
+    if(message.chatRoomID == chatRoomID)
+    {
+        let htmlMessage = `
+        <div class="message">
+            <div class="text-center userInfoRight">
+                <img src="/public/images/${message.userPhotoURL}" width="30" height="30" class="circlePhoto">
+                <a href="#"> 
+                    <small>
+                        ${message.username}
+                    </small> 
+                </a>
+            </div>
+            <div class="messageInfoRight">
+                <small>
+                    ${getDateTime(message.timestamp)}
+                </small>
+        `
+        const imageTypes = /jpeg|jpg|png/;
+        const ext = message.fileURL.slice(message.fileURL.lastIndexOf('.') + 1);
+        const isImage = imageTypes.test(ext.toLowerCase());
+
+        if(isImage)
+        {
+            htmlMessage += `
+                        <p>
+                            <a href="/public/chatFiles/${message.fileURL}" download>
+                                <img src="/public/chatFiles/${message.fileURL}" width="60" height="60">
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+        else
+        {
+            htmlMessage += `
+                        <p>
+                            <a href="/public/chatFiles/${message.fileURL}" download>
+                                ${message.fileURL}
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
         document.getElementById('messagesContainer').insertAdjacentHTML('beforeend', htmlMessage);
         setupMessages();
     }

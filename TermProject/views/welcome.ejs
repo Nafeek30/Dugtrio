@@ -44,7 +44,7 @@
                                 <!--********************************************************************************************************-->
                                 <!--*       Delete Chat Rooms                                                                             *-->
                                 <!--*****************************************************************************-->
-                            <!-- <% if(user._id === chatRoom.hostID || user.isAdmin) { %> -->
+                            <% if(user._id.equals(chatRoom.hostID) || user.isAdmin) { %>
                             <div id="deleteroom">
                                 <form action="/deleteRoom" method="POST">
                                     <input type="hidden" name="_id" value="<%= chatRoom._id %>">
@@ -53,7 +53,7 @@
                                     class="btn btn-danger">Delete</button>
                                 </form>
                             </div>
-                            <!-- <% } %> -->
+                            <% } %>
                         </div>
                         </li>
                         <% } %>
@@ -76,7 +76,7 @@
                     for(const message of messages){%>
                     <% if (message.username == user.username) { %>
                     <div class="message">
-                        <div class="userInfo">
+                        <div class="text-center userInfo">
 
                             <img src="/public/images/<%=message.userPhotoURL%>" width="30" height="30" class="circlePhoto">
                             <small>
@@ -92,8 +92,8 @@
                             </p>
                             <%}else if(message.fileURL.length > 0){
                                     const imageTypes = /jpeg|jpg|png/;
-                                    const ext = message.fileURL.slice(message.fileURL.lastIndexOf('.') + 1)
-                                    const isImage = imageTypes.test(ext.toLowerCase())
+                                    const ext = message.fileURL.slice(message.fileURL.lastIndexOf('.') + 1);
+                                    const isImage = imageTypes.test(ext.toLowerCase());
                                     if(isImage)
                                     { %>
                                         <p>
@@ -134,7 +134,7 @@
                     </div>
                     <% } else { %>
                     <div class="message">
-                        <div class="userInfoRight">
+                        <div class="text-center userInfoRight">
 
                             <img src="/public/images/<%=message.userPhotoURL%>" width="30" height="30" class="circlePhoto">
                             <a href="#"> <small>
@@ -144,9 +144,31 @@
                             <small>
                                 <%=utility.getDateTime(message.timestamp)%>
                             </small>
-                            <p>
-                                <%=message.text%>
-                            </p>
+                            <%if(message.text.length > 0){%>
+                                <p>
+                                    <%=message.text%>
+                                </p>
+                                <%}else if(message.fileURL.length > 0){
+                                        const imageTypes = /jpeg|jpg|png/;
+                                        const ext = message.fileURL.slice(message.fileURL.lastIndexOf('.') + 1);
+                                        const isImage = imageTypes.test(ext.toLowerCase());
+                                        if(isImage)
+                                        { %>
+                                            <p>
+                                            <a href="/public/chatFiles/<%=message.fileURL%>" download>
+                                            <img src="/public/chatFiles/<%=message.fileURL%>" width="60" height="60">
+                                        </a>
+                                        </p>
+                                        <%}
+                                        else
+                                        {%>
+                                            <p>
+                                            <a href="/public/chatFiles/<%=message.fileURL%>" download>
+                                                <%=message.fileURL%>
+                                            </a>
+                                        </p>
+                                        <%}
+                                    }%>
                         </div>
                     </div>
                     <% } %>

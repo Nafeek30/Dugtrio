@@ -87,7 +87,7 @@
 .userInfo{
     position: relative;
     top: 1.5em;
-    left: 1em;
+    left: 3%;
     width: 7%;
     float: left;
     clear: both;
@@ -96,7 +96,7 @@
 .userInfoRight{
     position: relative;
     top: 1.5em;
-    right: 1em;
+    right: 3%;
     width: 7%;
     float: right;
     clear: both;
@@ -105,7 +105,7 @@
 .messageInfo {
     position: relative;
     width: 70%;
-    right: 10em;
+    right: 17%;
     float: right;
 }
 
@@ -117,16 +117,11 @@
     padding: 0.5em;
     text-align: left;
 }
-/* 
-.messageInfo a {
-    float: left;
-    top: -5em;
-} */
 
 .messageInfoRight {
     position: relative;
     width: 70%;
-    left: 10em;
+    left: 17%;
     float: left;
     text-align: right;
 }
@@ -199,9 +194,9 @@
 .dropbtn {
     position: relative;
     top: -3.4em;
-    left: 41em;
-    width: 7%;
-    float: left;
+    right: 15%;
+    width: 5%;
+    float: right;
   }
   
 .dropbutton {
@@ -210,16 +205,16 @@
 
   .dropdown {
     position: relative;
-    float: left;
+    float: right;
   }
   
   .dropdown-content {
     display: none;
     position: absolute;
     top: -3.2em;
-    left: 43em;
-    width: 7%;
-    float: left;
+    right: 15%;
+    width: 5%;
+    float: right;
     background-color: #ffffff;
     min-width: 130px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
