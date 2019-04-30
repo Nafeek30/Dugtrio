@@ -19,9 +19,6 @@ const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
 
-const Peer = require("simple-peer")
-const wrtc = require('wrtc')
-
 const MAX_FILESIZE = 1024 * 1024 * 1
 const imageTypes = /jpeg|jpg|png/;
 
@@ -336,43 +333,6 @@ app.post('/chatroom', auth, (req, res) => {
             res.send(`${error}`)
         })
 })
-
-// ----------------------------------------------------------------------------
-// Initialize webcam route
-// --------------------------------------------------------------------------
-app.get("/initWebcam", auth, (req, res) => {
-    res.render('initWebcam', { user: req.user })
-})
-
-// ----------------------------------------------------------------------------
-// Initialize audio route
-// --------------------------------------------------------------------------
-app.get('/initAudiocam', auth, (req, res) => {
-    res.render('initAudiocam', {user: req.user})
-})
-
-// ----------------------------------------------------------------------------
-// render webcam
-// --------------------------------------------------------------------------
-app.get("/1", (req, res) => {
-    res.render('webcam')
-})
-
-// ----------------------------------------------------------------------------
-// Initialize Audio route
-// --------------------------------------------------------------------------
-app.get("/initAudio", auth, (req, res) => {
-    res.render('initAudio', { user: req.user })
-})
-
-
-// ----------------------------------------------------------------------------
-// render Audio
-// --------------------------------------------------------------------------
-app.get("/1", (req, res) => {
-    res.render('audio')
-})
-
 
 // ----------------------------------------------------------------------------
 // Friends route
@@ -800,8 +760,8 @@ const imageUpload = multer({
     storage: StorageOptions,
     limits: { fileSize: MAX_FILESIZE },
     fileFilter: (req, file, callback) => {
-        const ext = fileTypes.test(path.extname(file.originalname).toLowerCase())
-        const mimetype = fileTypes.test(file.mimetype)
+        const ext = imageTypes.test(path.extname(file.originalname).toLowerCase())
+        const mimetype = imageTypes.test(file.mimetype)
         if (ext && mimetype) {
             return callback(null, true)
         } else {
@@ -864,8 +824,37 @@ app.post('/uploadImage', auth, (req, res) => {
 // ----------------------------------------------------------------------------
 // upload file to chatroom 
 // --------------------------------------------------------------------------
-app.post('/uploadFile', auth, (req, res) => {
-    res.send('uploaded')
+app.get('/sendFile/:chatRoomID', auth, (req, res) => {
+    const chatRoomID = req.params.chatRoomID
+    res.render('sendFile', {flash_message: req.flash('flash_message'), chatRoomID})
+})
+
+app.post('/sendFile/:chatRoomID', auth, (req, res) => {
+    const chatRoomID = req.params.chatRoomID
+    console.log(`ChatID:${chatRoomID}`)
+
+    chatFileUpload(req, res, error => {
+        if (error) {
+            req.flash('flash_message', "Can't upload because: " + error)
+            return res.redirect(`/sendFile/${chatRoomID}`)
+        }
+        else if (!req.file) {
+            req.flash('flash_message', "No file selected")
+            return res.redirect(`/sendFile/${chatRoomID}`)
+        }
+
+        const message = new Message(chatRoomID, req.user._id, req.user.username, req.user.photoURL)
+        message.fileURL = req.file.filename
+
+        app.locals.messagesCollection.insertOne(message)
+            .then(result => {
+                res.redirect(`/welcome/${chatRoomID}`)
+            })
+            .catch(error => {
+                res.send(`${error}`)
+            })
+
+    })
 })
 
 // ----------------------------------------------------------------------------

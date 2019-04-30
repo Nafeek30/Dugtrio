@@ -84,10 +84,34 @@
                         </div>
                         <div class="messageInfo">
                             <small>
-                                <%=utility.getDateTime(message.timestamp)%></small>
+                                <%=utility.getDateTime(message.timestamp)%>
+                            </small>
+                            <%if(message.text.length > 0){%>
                             <p>
                                 <%=message.text%>
                             </p>
+                            <%}else if(message.fileURL.length > 0){
+                                    const imageTypes = /jpeg|jpg|png/;
+                                    const ext = message.fileURL.slice(message.fileURL.lastIndexOf('.') + 1)
+                                    const isImage = imageTypes.test(ext.toLowerCase())
+                                    if(isImage)
+                                    { %>
+                                        <p>
+                                        <a href="/public/chatFiles/<%=message.fileURL%>" download>
+                                        <img src="/public/chatFiles/<%=message.fileURL%>" width="60" height="60">
+                                    </a>
+                                    </p>
+                                    <%}
+                                    else
+                                    {%>
+                                        <p>
+                                        <a href="/public/chatFiles/<%=message.fileURL%>" download>
+                                            <%=message.fileURL%>
+                                        </a>
+                                    </p>
+                                    <%}
+                                }%>
+
                         </div>
 
                         <div class="dropdown">
@@ -143,12 +167,9 @@
                                     <!-- Dropdown menu links -->
                                     <a class="dropdown-item" onclick="inviteFriend('<%= openChatRoom._id %>')">Invite
                                         Friend</a>
-                                    <a class="dropdown-item" id="audioCallID" onclick="AudioPage()">Voice Call</a>
-                                    <a class="dropdown-item" id="videoCallID" onclick="WebcamPage()">Video Call</a>
-                                    <form action="/uploadFile" method="POST" enctype="multipart/form-data">
-                                        <input id="imageFile" type="file">
-                                        <button type="submit" class="btn btn-outline-info">Upload</button>
-                                    </form>
+                                    <a class="dropdown-item" href="/sendFile/<%= openChatRoom._id %>">
+                                        Send File
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -170,14 +191,6 @@
                 //https://www.codeproject.com/Questions/632251/How-to-make-div-scroll-to-bottom-on-load
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
-        }
-
-        function WebcamPage() {
-            window.open("/initWebcam", "Init Webcam", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=500,height=600");
-        }
-
-        function AudioPage() {
-            window.open("/initWebcam", "Init Webcam", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=500,height=600");
         }
 
         function inviteFriend(chatRoomID) {

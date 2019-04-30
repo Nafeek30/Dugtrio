@@ -10,7 +10,7 @@ class Message
         this.username = username;
         this.userPhotoURL = userPhotoURL;
         this.text = "";
-        this.photoURL = "";
+        this.fileURL = "";
         this.timestamp = Date.now();
     }
 
@@ -23,7 +23,7 @@ class Message
             username: this.username,
             userPhotoURL: this.userPhotoURL,
             text: this.text,
-            photoURL: this.photoURL,
+            fileURL: this.fileURL,
             timestamp: this.timestamp
         };
     }
@@ -39,7 +39,7 @@ class Message
 
         deserializedMessage._id = ObjectID(message._id);
         deserializedMessage.text = message.text;
-        deserializedMessage.photoURL = photoURL;
+        deserializedMessage.fileURL = message.fileURL;
         deserializedMessage.timestamp = message.timestamp;
     }
 }
