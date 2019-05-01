@@ -42,6 +42,7 @@
                     <div id="deleteFriend">
                             <form action="/deleteFriend" method="POST">
                                 <input type="hidden" name="_id" value="<%= friend._id %>">
+                                <input type="hidden" name="friendName" value="<%= friend.username %>">
                                 <button 
                                 type="submit" id="deletefriend" name="deletefriend" 
                                 class="btn btn-outline-danger circlePhoto">Delete</button>
@@ -64,12 +65,15 @@
                         alt="<%= invite.sender.username %>'s profile photo">
                     <strong>
                         <%= invite.sender.username %> </strong> invited you to join
-                    <img src="/public/images/<%= invite.chatRoom.photoURL %>" width="30" height="30" class="circlePhoto"
+                    <img src="<%= invite.chatRoom.photoURL %>" width="30" height="30" class="circlePhoto"
                         alt="<%= invite.chatRoom.name %>'s photo">
                     <strong>
                         <%= invite.sender.chatRoomName %> </strong>
                     <a role="button" class="btn btn-outline-success circlePhoto" href="/friends/<%= invite._id %>?chatRoomID=<%= invite.chatRoom._id %>&isAccepted=true">
                         +
+                    </a>
+                    <a role="button" class="btn btn-outline-danger circlePhoto" href="/friends/<%= invite._id %>?chatRoomID=<%= invite.chatRoom._id %>&isAccepted=false">
+                        -
                     </a>
                 </li>
                 <% } %>

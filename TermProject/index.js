@@ -237,7 +237,7 @@ app.get('/sendInvite/:chatRoomID', (req, res) => {
         const invite = new Invite(User.deserialize(req.user), friendID, chatRoom)
         //insert if not exists
         app.locals.invitesCollection.updateOne(
-            { $and: [{ 'receiver._id': friendID }, { 'chatRoom._id': chatRoom._id }] },
+            { $and: [{ receiverID: friendID }, { 'chatRoom._id': chatRoom._id }] },
             {
                 $setOnInsert: {
                     sender: invite.sender,
@@ -289,7 +289,14 @@ app.get('/friends/:_id', (req, res) => {
             })
     }
     else {
-        //TODO: reject invite
+        app.locals.invitesCollection.deleteOne({_id: inviteID})
+            .then(result => {
+                req.flash('flash_message', 'Invite rejected.')
+                res.redirect('/friends')
+            })
+            .catch(error => {
+                res.send(`${error}`)
+            })
     }
 })
 
@@ -606,7 +613,7 @@ app.post('/deleteRoom', auth, (req, res) => {
         .then(result => {
             app.locals.chatRoomsCollection.deleteOne(query)
                 .then(result => {
-                    req.session.chatRoom = null
+                    req.session.chatRooms = null
                     res.redirect('/welcome')
                 })
                 .catch(error => {
@@ -622,23 +629,53 @@ app.post('/deleteRoom', auth, (req, res) => {
 // Edit message GET route
 // --------------------------------------------------------------------------
 app.post('/deleteFriend', auth, (req, res) => {
-    const friendID = req.body._id
-    const myID = req.user._id
-    const mquery = {_id: app.locals.ObjectID(friendID)}
-    const fquery = {_id: app.locals.ObjectID(myID)}
+    const friendID = app.locals.ObjectID(req.body._id)
+    const myID = app.locals.ObjectID(req.user._id)
 
-    app.locals.usersCollection.updateOne({_id:myID}, { $pull: {'friendIDs': {friendID}}})
+    app.locals.usersCollection.updateOne({_id: myID}, { $pull: {friendIDs: friendID}})
         .then(result => {
-            app.locals.usersCollection.updateOne({_id:friendID}, { $pull: {'friendIDs': {myID}}})
+            app.locals.usersCollection.updateOne({_id:friendID}, { $pull: {friendIDs: myID}})
                 .then(result => {
-                    res.redirect('/friends')
+                    const inviteQuery = {$or: [
+                        {$and: [
+                            {'sender._id': myID},
+                            {receiverID: friendID}
+                        ]},
+                        {$and: [
+                            {'sender._id': friendID},
+                            {receiverID: myID}
+                        ]}
+                    ]}
+
+                    app.locals.invitesCollection.deleteMany(inviteQuery)
+                        .then(result => {
+                            app.locals.chatRoomsCollection.updateMany(
+                                {hostID: myID},
+                                {$pull: {userIDs: friendID}}
+                            )
+                            .then(result => {
+                                req.session.chatRooms = null
+                                req.flash('flash_message', `Unfriended ${req.body.friendName}`)
+                                res.redirect('/friends')
+                            })
+                            .catch(error => {
+                                console.log('cannot kick old friend from chatrooms')
+                                res.send(`${error}`)
+                            })
+                        })
+                        .catch(error => {
+                            console.log('cannot delete invites')
+                            res.send(`${error}`)
+                        })
                 })
                 .catch(error => {
                     console.log('cannot delete friend')
+                    res.send(`${error}`)
                 })
         })
         .catch(error => {
             console.log('cannot delete friennd from his list')
+            res.send(`${error}`)
         })
 })
 
